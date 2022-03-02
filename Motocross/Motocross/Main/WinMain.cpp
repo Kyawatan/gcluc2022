@@ -15,7 +15,7 @@ INT WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE, _In_ LPSTR, _In
 	if (g_pMain != NULL)
 	{
 		// ウィンドウ生成とDirectX初期化、あとはアプリ終了までループ処理
-		Kawata::MainLoop(hInstance, WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME);
+		MainLoop(hInstance, WINDOW_WIDTH, WINDOW_HEIGHT, APP_NAME);
 		delete g_pMain;
 	}
 	return 0;

@@ -3,7 +3,7 @@
 */
 
 #pragma once
-#include "KawataLib.h"
+#include "Definition.h"
 
 class Main
 {
@@ -19,5 +19,7 @@ private:
 	void (Main::* m_pFunc)(); // 関数ポインタ
 	void SetFunc(void (Main::* pFunc)()) { m_pFunc = pFunc; } // 実行する関数をセットする
 
+	E_SceneName m_nowScene;
+	SceneBase* m_pScene;
 };
 

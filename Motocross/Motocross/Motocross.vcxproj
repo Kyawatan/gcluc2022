@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(DXSDK_DIR)include\;C:\Users\Owner\Documents\TortoiseSVN-work\tracpath_dx11\trunk\KawataLib\KawataLib\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(DXSDK_DIR)include\;C:\Users\Owner\Documents\TortoiseSVN-work\tracpath_dx11\trunk\KawataLib\KawataLib\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -142,16 +142,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-    <ClCompile Include="WinMain.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Main.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\..\..\TortoiseSVN-work\tracpath_dx11\trunk\KawataLib\KawataLib\KawataLib.vcxproj">
       <Project>{8c698e45-b0c8-4e45-b052-30368aa02aa3}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
+    <ClCompile Include="Main\Main.cpp" />
+    <ClCompile Include="Main\WinMain.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\Definition.h" />
+    <ClInclude Include="include\Main.h" />
+    <ClInclude Include="include\SceneGame.h" />
+    <ClInclude Include="include\TaskBackGround.h" />
+    <ClInclude Include="include\TaskPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
