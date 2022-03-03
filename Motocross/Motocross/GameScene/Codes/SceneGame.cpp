@@ -14,16 +14,9 @@ SceneGame::SceneGame()
 
 	// プレイヤー生成
 	m_pPlayer = new TaskPlayer();
-	m_pPlayer->m_TaskTransform.SetTransform
-	(
-		KVector3{ -2600, 0, 0 },		// pos
-		KVector3{ 0, 0, 0 },			// rot
-		KVector3{ 1, 1, 1 }				// scale
-	);
-
 	// メインカメラ
 	m_pMainCamera = new CameraController();
-	m_pMainCamera->FollowPlayer(m_pPlayer->m_TaskTransform.GetPosition());
+	m_pMainCamera->SetCourseStart();
 }
 
 SceneGame::~SceneGame()
@@ -33,5 +26,5 @@ SceneGame::~SceneGame()
 
 void SceneGame::Update()
 {
-	m_pMainCamera->FollowPlayer(m_pPlayer->m_TaskTransform.GetPosition());
+	m_pMainCamera->FollowPlayer(dynamic_cast<TaskPlayer*>(m_pPlayer)->GetCameraMovement());
 }

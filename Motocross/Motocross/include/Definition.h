@@ -7,8 +7,21 @@
 
 using namespace Kawata;
 
+/****************************************************
+	class
+****************************************************/
+
 class SceneGame;
 
+class TaskPlayer;
+class TaskBackGround;
+
+class CameraController;
+
+
+/****************************************************
+	enum class
+****************************************************/
 
 // ÉVÅ[Éìñº
 enum class E_SceneName

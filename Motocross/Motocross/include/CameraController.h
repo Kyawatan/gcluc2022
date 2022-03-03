@@ -10,7 +10,7 @@ public:
 
 	void SetDefault();
 	void SetCourseStart();
-	void FollowPlayer(KVector3 vPlayerPos);
+	void FollowPlayer(KVector3 vMovement);
 
 private:
 	KawataCamera* m_pCamera;

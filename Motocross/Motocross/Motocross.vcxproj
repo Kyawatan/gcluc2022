@@ -147,6 +147,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameScene\Codes\LaneManager.cpp" />
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
@@ -157,6 +158,7 @@
   <ItemGroup>
     <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="include\Definition.h" />
+    <ClInclude Include="include\LaneManager.h" />
     <ClInclude Include="include\Main.h" />
     <ClInclude Include="include\SceneGame.h" />
     <ClInclude Include="include\TaskBackGround.h" />
