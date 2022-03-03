@@ -150,10 +150,12 @@
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
+    <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
     <ClCompile Include="Main\WinMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\CameraController.h" />
     <ClInclude Include="include\Definition.h" />
     <ClInclude Include="include\Main.h" />
     <ClInclude Include="include\SceneGame.h" />

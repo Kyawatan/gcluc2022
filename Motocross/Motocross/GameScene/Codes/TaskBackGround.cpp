@@ -5,7 +5,7 @@ TaskBackGround::TaskBackGround()
 	: TaskBase(0, 0, NULL)
 	, m_pSprite(NULL)
 {
-	m_pSprite = new TexQuad(&m_TaskTransform, 1440, 720, L"GameScene/Images/background.png");
+	m_pSprite = new TexQuad(&m_TaskTransform, 1440, 720, L"GameScene/Images/background.png", 4, 1);
 	m_TaskTransform.AddChild(m_pSprite);
 }
 

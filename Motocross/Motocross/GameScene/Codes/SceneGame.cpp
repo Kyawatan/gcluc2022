@@ -1,14 +1,14 @@
 #include "SceneGame.h"
 #include "TaskPlayer.h"
 #include "TaskBackGround.h"
+#include "CameraController.h"
+
 
 SceneGame::SceneGame()
 	: SceneBase()
+	, m_pMainCamera(NULL)
 	, m_pPlayer(NULL)
 {
-	// ƒJƒƒ‰ˆÊ’u
-	GetpCamera()->SetEyePt(KVector3{ -78, 0, -870 });
-
 	// ”wŒi¶¬
 	TaskBackGround* back = new TaskBackGround();
 
@@ -16,18 +16,22 @@ SceneGame::SceneGame()
 	m_pPlayer = new TaskPlayer();
 	m_pPlayer->m_TaskTransform.SetTransform
 	(
-		KVector3{ -550, 0, 0 },			// pos
+		KVector3{ -2600, 0, 0 },		// pos
 		KVector3{ 0, 0, 0 },			// rot
 		KVector3{ 1, 1, 1 }				// scale
 	);
+
+	// ƒƒCƒ“ƒJƒƒ‰
+	m_pMainCamera = new CameraController();
+	m_pMainCamera->FollowPlayer(m_pPlayer->m_TaskTransform.GetPosition());
 }
 
 SceneGame::~SceneGame()
 {
-
+	delete m_pMainCamera;
 }
 
 void SceneGame::Update()
 {
-
+	m_pMainCamera->FollowPlayer(m_pPlayer->m_TaskTransform.GetPosition());
 }
