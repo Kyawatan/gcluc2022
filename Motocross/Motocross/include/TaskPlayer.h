@@ -29,7 +29,6 @@ public:
 
 	bool IsGoal();
 	const KVector3 GetCameraMovement();
-	void SetCameraMovement(KVector3 vec);
 
 private:
 	QuadBase* m_pSprite;
@@ -41,6 +40,9 @@ private:
 	float m_fNextLaneDirection;
 	float m_fNextLanePos;
 	KVector3 m_vCameraPos;
+
+	void SetAnimation();
+	void SetCameraMovement(KVector3 vec);
 
 	bool CanAutoRun();
 	void AutoRun();

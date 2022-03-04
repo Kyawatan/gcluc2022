@@ -2,6 +2,7 @@
 
 #define EYEPT_Z				-870
 #define CAMERA_START_POS_X	-2230
+#define CAMERA_GOAL_POS_X	2170
 
 
 CameraController::CameraController()
@@ -23,6 +24,11 @@ void CameraController::SetDefault()
 void CameraController::SetCourseStart()
 {
 	m_pCamera->SetEyePt(KVector3{ CAMERA_START_POS_X, 0, EYEPT_Z });
+}
+
+void CameraController::SetCourseGoal()
+{
+	m_pCamera->SetEyePt(KVector3{ CAMERA_GOAL_POS_X, 0, EYEPT_Z });
 }
 
 void CameraController::FollowPlayer(KVector3 vMovement)

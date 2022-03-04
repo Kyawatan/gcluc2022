@@ -10,6 +10,7 @@ public:
 
 	void SetDefault();
 	void SetCourseStart();
+	void SetCourseGoal();
 	void FollowPlayer(KVector3 vMovement);
 
 private:

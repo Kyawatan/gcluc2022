@@ -26,5 +26,13 @@ SceneGame::~SceneGame()
 
 void SceneGame::Update()
 {
-	m_pMainCamera->FollowPlayer(dynamic_cast<TaskPlayer*>(m_pPlayer)->GetCameraMovement());
+	// ƒƒCƒ“ƒJƒƒ‰
+	if (dynamic_cast<TaskPlayer*>(m_pPlayer)->IsGoal())
+	{
+		m_pMainCamera->SetCourseGoal();
+	}
+	else
+	{
+		m_pMainCamera->FollowPlayer(dynamic_cast<TaskPlayer*>(m_pPlayer)->GetCameraMovement());
+	}
 }
