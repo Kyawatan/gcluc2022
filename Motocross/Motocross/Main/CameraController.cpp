@@ -1,8 +1,8 @@
 #include "CameraController.h"
 
 #define EYEPT_Z				-870
-#define CAMERA_START_POS_X	-2230
-#define CAMERA_GOAL_POS_X	2170
+#define CAMERA_START_POS_X	650
+#define CAMERA_GOAL_POS_X	COURSE_LENGTH - CAMERA_START_POS_X
 
 
 CameraController::CameraController()
@@ -34,5 +34,12 @@ void CameraController::SetCourseGoal()
 void CameraController::FollowPlayer(KVector3 vMovement)
 {
 	KVector3 vCameraPos = KVec3Add(m_pCamera->GetEyePt(), vMovement);
-	m_pCamera->SetEyePt(vCameraPos);
+	if (vCameraPos.x < CAMERA_GOAL_POS_X)
+	{
+		m_pCamera->SetEyePt(vCameraPos);
+	}
+	else
+	{
+		SetCourseGoal(); // コース外を写さないようにする
+	}
 }

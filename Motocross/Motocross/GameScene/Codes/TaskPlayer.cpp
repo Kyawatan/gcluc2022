@@ -4,6 +4,9 @@
 #include <assert.h>
 #include "ScrapTexQuad.h"
 
+
+#define PLAYER_START_POS_X		230
+#define PLAYER_GOAL_POS_X		COURSE_LENGTH - 300
 #define RUN_SPEED		250
 #define CHANGE_SPEED	300
 
@@ -17,22 +20,22 @@ enum class E_PlayerAnim
 	JumpReady,
 };
 
-TaskPlayer::TaskPlayer()
-	: TaskBase(0, 10, NULL)
+TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
+	: TaskBase(0, -100, NULL)
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
-	, m_eNowState(E_PlayerState::Normal)
-	, m_LaneManager()
+	, m_eNowState(E_PlayerState::Wait)
+	, m_pLaneManager(pLaneManager)
 	, m_eNowLane(E_CourseLane::Center)
 	, m_eNextLane(E_CourseLane::Center)
 	, m_fNextLaneDirection(0)
-	, m_fNextLanePos(m_LaneManager.GetLanePos(m_eNextLane))
+	, m_fNextLanePos(pLaneManager->GetLanePos(m_eNextLane))
 	, m_vCameraPos()
 {
 	// タスクの初期トランスフォーム
 	m_TaskTransform.SetTransform
 	(
-		KVector3{ PLAYER_START_POS_X, m_LaneManager.GetLanePos(E_CourseLane::Center), m_LaneManager.GetLanePos(E_CourseLane::Center) }, // pos
+		KVector3{ PLAYER_START_POS_X, m_pLaneManager->GetLanePos(E_CourseLane::Center), m_pLaneManager->GetLanePos(E_CourseLane::Center) }, // pos
 		KVector3{ 0, 0, 0 }, // rot
 		KVector3{ 1, 1, 1 }	// scale
 	);
@@ -44,6 +47,7 @@ TaskPlayer::TaskPlayer()
 	texInfo.iTipRow = 4;
 	texInfo.iTipColumn = 3;
 	m_pSprite = new ScrapTexQuad(&m_TaskTransform, 768, 1024, L"GameScene/Images/player_normal.png", &texInfo);
+	m_pSprite->m_transform.SetPosition(KVector3{ 0, 76, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.AddChild(m_pSprite);
 
 	// アニメーション作成
@@ -61,6 +65,12 @@ TaskPlayer::~TaskPlayer()
 void TaskPlayer::Update()
 {
 	m_pAnim->Update();
+
+	// スタート合図（仮）
+	if (m_eNowState == E_PlayerState::Wait && GetpKeyState()->Down(E_KEY_NAME::SPACE))
+	{
+		m_eNowState = E_PlayerState::Normal;
+	}
 
 	if (CanAutoRun())
 	{
@@ -85,6 +95,22 @@ void TaskPlayer::Update()
 		else if (m_eNowState == E_PlayerState::ChangeLane)
 		{
 			ChangeLane();
+		}
+	}
+
+	if (CanJump())
+	{
+		if (m_eNowState == E_PlayerState::Normal)
+		{
+			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
+			{
+				//UndoLane(); // 元にいたレーンに戻る
+				Launch();
+			}
+		}
+		else if (m_eNowState == E_PlayerState::Jump)
+		{
+			Fall();
 		}
 	}
 }
@@ -144,6 +170,10 @@ void TaskPlayer::SetAnimation()
 	m_pAnim->SetAnimationInfo(index, rEndNum, rEndOrders, rEndSpeeds);
 }
 
+/***********************************************************************************
+	AutoRun
+*************************************************************************************/
+
 void TaskPlayer::SetCameraMovement(KVector3 vec)
 {
 	m_vCameraPos = vec;
@@ -151,14 +181,10 @@ void TaskPlayer::SetCameraMovement(KVector3 vec)
 
 bool TaskPlayer::CanAutoRun()
 {
-	if (!IsGoal())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	if (IsGoal()) return false;
+	if (m_eNowState == E_PlayerState::Wait) return false;
+
+	return true;
 }
 
 void TaskPlayer::AutoRun()
@@ -173,16 +199,16 @@ void TaskPlayer::AutoRun()
 	assert(PLAYER_START_POS_X <= m_TaskTransform.GetPosition().x < PLAYER_GOAL_POS_X);
 }
 
+/***********************************************************************************
+	ChangeLane
+*************************************************************************************/
+
 bool TaskPlayer::CanChangeLane()
 {
-	if (!IsGoal())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	if (IsGoal()) return false;
+	if (m_eNowState == E_PlayerState::Jump) return false;
+
+	return true;
 }
 
 void TaskPlayer::ChangeLane()
@@ -191,17 +217,20 @@ void TaskPlayer::ChangeLane()
 	float fMovementYZ = m_fNextLaneDirection * CHANGE_SPEED * GetDeltaTime();
 	float fMovementX = fMovementYZ * cos((1.0f / 6.0f) * M_PI);
 	m_TaskTransform.Translate(KVector3{ fMovementX, fMovementYZ, fMovementYZ });
+	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 
+	// 次のレーンまで来ていなければreturn
 	if (m_fNextLaneDirection < 0 && m_fNextLanePos <= m_TaskTransform.GetPosition().z)
 	{
-		return;
+		return; // 次のレーン（1つ右）まで来ていなければreturn
 	}
 	else if (0 < m_fNextLaneDirection && m_TaskTransform.GetPosition().z <= m_fNextLanePos)
 	{
-		return;
+		return; // 次のレーン（1つ左）まで来ていなければreturn
 	}
-	// 次のレーンまできたらレーン移動終了
+	// 次のレーンまで来たらレーン移動終了
 	m_TaskTransform.SetPosition(KVector3{ m_TaskTransform.GetPosition().x, m_fNextLanePos, m_fNextLanePos });
+	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowState = E_PlayerState::Normal;
 	m_eNowLane = m_eNextLane;
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveEnd), false, static_cast<int>(E_PlayerAnim::Run));
@@ -211,8 +240,10 @@ void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
 {
 	// 次のレーンを決定してレーン移動に遷移
 	m_eNextLane = static_cast<E_CourseLane>(static_cast<int>(m_eNowLane) + static_cast<int>(eNextLane));
-	m_fNextLanePos = m_LaneManager.GetLanePos(m_eNextLane);
+	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
 	m_fNextLaneDirection = static_cast<int>(eNextLane);
+	m_eNowState = E_PlayerState::ChangeLane;
+	// アニメーションセット
 	if (static_cast<int>(eNextLane) < 0)
 	{
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), false, static_cast<int>(E_PlayerAnim::MoveRight));
@@ -221,5 +252,39 @@ void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
 	{
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), false, static_cast<int>(E_PlayerAnim::MoveLeft));
 	}
-	m_eNowState = E_PlayerState::ChangeLane;
 }
+
+/***********************************************************************************
+	Jump
+*************************************************************************************/
+
+bool TaskPlayer::CanJump()
+{
+	if (IsGoal()) return false;
+	if (m_eNowState == E_PlayerState::ChangeLane) return false;
+
+	return true;
+}
+
+void TaskPlayer::Launch()
+{
+	//m_fLandingPos = m_TaskTransform.GetPosition().z; // 着地点
+	//m_fVy = JUMP_Vy0; // 初速
+	//m_eNowState = E_PlayerState::Jump;
+}
+
+void TaskPlayer::Fall()
+{
+	//m_fVy -= GRABITY * GetDeltaTime(); // 重力加速度
+	//m_TaskTransform.Translate(KVector3{ 0, m_fVy * GetDeltaTime(), 0 }); // 移動
+	//if (m_TaskTransform.GetPosition().y < m_fLandingPos)
+	//{
+	//	KVector3 pos = m_TaskTransform.GetPosition();
+	//	m_TaskTransform.SetPosition(KVector3{ pos.x, m_fLandingPos, pos.z });
+	//	m_eOtakuPlace = E_OtakuPlace::Ground;
+	//	m_fVy = 0;
+	//}
+}
+
+#define JUMP_Vy0		900		// ジャンプ初速
+#define GRAVITY	9.8	// 加速度

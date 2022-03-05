@@ -7,6 +7,8 @@
 
 using namespace Kawata;
 
+#define COURSE_LENGTH 5760	// コース全長
+
 /****************************************************
 	class
 ****************************************************/
@@ -29,4 +31,12 @@ enum class E_SceneName
 	Title,
 	Game,
 	Result,
+};
+
+// タスクのDraw順序（番号の小さいものが手前に来る）
+enum class E_TaskDrawNum
+{
+	BackGround = 1000,
+	Default = 900,
+	UI = -1000,
 };

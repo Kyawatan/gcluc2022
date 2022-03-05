@@ -3,14 +3,13 @@
 #include "Definition.h"
 #include "LaneManager.h"
 
-#define PLAYER_START_POS_X		-2600
-#define PLAYER_GOAL_POS_X		1800
 
 enum class E_PlayerState
 {
 	Wait,
 	Normal,
 	ChangeLane,
+	Jump,
 	Event, // QTE’†
 	Damage,
 };
@@ -21,7 +20,7 @@ class TaskPlayer : public TaskBase
 public:
 	friend class PlayerController;
 
-	TaskPlayer();
+	TaskPlayer(LaneManager* pLaneManager);
 	~TaskPlayer();
 
 	void Update() override;
@@ -34,20 +33,27 @@ private:
 	QuadBase* m_pSprite;
 	KawataAnimation* m_pAnim;
 	E_PlayerState m_eNowState;
-	LaneManager m_LaneManager;
+
+	LaneManager* m_pLaneManager;
 	E_CourseLane m_eNowLane;
 	E_CourseLane m_eNextLane;
 	float m_fNextLaneDirection;
 	float m_fNextLanePos;
+
 	KVector3 m_vCameraPos;
 
 	void SetAnimation();
-	void SetCameraMovement(KVector3 vec);
 
+	void SetCameraMovement(KVector3 vec);
 	bool CanAutoRun();
 	void AutoRun();
+	
 	bool CanChangeLane();
 	void ChangeLane();
 	void UndoLane();
 	void SetNextLane(E_CourseChange eNextLane);
+
+	bool CanJump();
+	void Launch();
+	void Fall();
 };

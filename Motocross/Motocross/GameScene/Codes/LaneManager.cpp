@@ -1,8 +1,8 @@
 #include "LaneManager.h"
 #include <assert.h>
 
-#define LANE_INTERVAL	130
-#define LANE_CENTER		-100
+#define LANE_INTERVAL	120
+#define LANE_CENTER		-170
 
 
 LaneManager::LaneManager()
@@ -21,7 +21,7 @@ LaneManager::~LaneManager()
 
 }
 
-E_CourseLane LaneManager::GetNowLane(float fPos)
+E_CourseLane LaneManager::GetCurrentLane(float fPos)
 {
 	assert(m_fLaneRightPos < fPos < m_fLaneLeftPos);
 
@@ -37,6 +37,11 @@ E_CourseLane LaneManager::GetNowLane(float fPos)
 	{
 		return E_CourseLane::Center;
 	}
+}
+
+const float LaneManager::GetLaneInterval()
+{
+	return LANE_INTERVAL;
 }
 
 const float LaneManager::GetLanePos(E_CourseLane eLane)

@@ -22,8 +22,9 @@ public:
 	~LaneManager();
 
 	// Œ»İˆÊ’u‚µ‚Ä‚¢‚éƒŒ[ƒ“‚ğ•Ô‚·
-	E_CourseLane GetNowLane(float fPos);
+	E_CourseLane GetCurrentLane(float fPos);
 
+	const float GetLaneInterval();
 	const float GetLanePos(E_CourseLane eLane);
 	const float GetBorderRightCenterPos();
 	const float GetBorderCenterLeftPos();
