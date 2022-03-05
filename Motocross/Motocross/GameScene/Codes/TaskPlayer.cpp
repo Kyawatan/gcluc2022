@@ -5,7 +5,7 @@
 #include "ScrapTexQuad.h"
 
 
-#define PLAYER_START_POS_X		230
+#define PLAYER_START_POS_X		400
 #define PLAYER_GOAL_POS_X		COURSE_LENGTH - 300
 #define RUN_SPEED		250
 #define CHANGE_SPEED	300

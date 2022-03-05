@@ -152,6 +152,7 @@
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskCorn.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskKobu.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="include\SceneGame.h" />
     <ClInclude Include="include\TaskBackGround.h" />
     <ClInclude Include="include\TaskCorn.h" />
+    <ClInclude Include="include\TaskKobu.h" />
     <ClInclude Include="include\TaskPlayer.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
