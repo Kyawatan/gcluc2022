@@ -6,12 +6,12 @@
 
 enum class E_PlayerState
 {
-	Wait,
-	Normal,
-	ChangeLane,
-	Jump,
-	Event, // QTE中
-	Damage,
+	Wait,		// スタート前、停止中（操作不可、自動前進しない）
+	Normal,		// コースを走っているとき（レーン変更可能、自動前進）
+	ChangeLane,	// レーン変更中（レーン変更不可、自動前進）
+	Jump,		// ジャンプ中（操作不可、自動前進）
+	Event,		// QTE中（操作不可、自動前進）
+	Damage,		// ダメージ（操作不可、自動前進に変化？）
 };
 
 
@@ -28,6 +28,9 @@ public:
 
 	bool IsGoal();
 	const KVector3 GetCameraMovement();
+	void SetEvent();
+	void Jump();
+	KVector2 GetCollisionPoint();
 
 private:
 	QuadBase* m_pSprite;
@@ -57,6 +60,5 @@ private:
 	void SetNextLane(E_CourseChange eNextLane);
 
 	bool CanJump();
-	void Jump();
 	void Fall();
 };

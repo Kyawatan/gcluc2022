@@ -1,8 +1,8 @@
 #include "LaneManager.h"
 #include <assert.h>
 
-#define LANE_INTERVAL	120
-#define LANE_CENTER		-170
+#define LANE_INTERVAL	100
+#define LANE_CENTER		-160
 
 
 LaneManager::LaneManager()

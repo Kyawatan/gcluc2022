@@ -30,7 +30,7 @@ enum class E_PlayerAnim
 };
 
 TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
-	: TaskBase(0, -100, NULL)
+	: TaskBase(0, -100, static_cast<int>(E_TaskLayerNum::Player))
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
 	, m_iAnimTexIndex()
@@ -68,7 +68,7 @@ TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
 		KVector3{ 0, 0, 0 },
 		KVector3{ 0.47, 0.15, 1 }
 	);
-	m_pCollider->AddLine(); // 補助線表示
+	//m_pCollider->AddLine(); // 補助線表示
 }
 
 TaskPlayer::~TaskPlayer()
@@ -109,13 +109,9 @@ void TaskPlayer::Update()
 
 	if (CanJump())
 	{
-		if (m_eNowState == E_PlayerState::Normal)
+		if (m_eNowState == E_PlayerState::Event)
 		{
-			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
-			{
-				//UndoLane(); // 元にいたレーンに戻る
-				Jump();
-			}
+			//UndoLane(); // 元にいたレーンに戻る
 		}
 		else if (m_eNowState == E_PlayerState::Jump)
 		{
@@ -150,11 +146,6 @@ bool TaskPlayer::IsGoal()
 	{
 		return false;
 	}
-}
-
-const KVector3 TaskPlayer::GetCameraMovement()
-{
-	return m_vCameraPos;
 }
 
 void TaskPlayer::SetAnimation()
@@ -252,6 +243,11 @@ void TaskPlayer::SetAnimation()
 	AutoRun
 *************************************************************************************/
 
+const KVector3 TaskPlayer::GetCameraMovement()
+{
+	return m_vCameraPos;
+}
+
 void TaskPlayer::SetCameraMovement(KVector3 vec)
 {
 	m_vCameraPos = vec;
@@ -339,7 +335,7 @@ void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
 bool TaskPlayer::CanJump()
 {
 	if (IsGoal()) return false;
-	if (m_eNowState == E_PlayerState::Normal || m_eNowState == E_PlayerState::Jump) return true;
+	if (m_eNowState == E_PlayerState::Event || m_eNowState == E_PlayerState::Jump) return true;
 	else return false;
 
 	return true;
@@ -348,8 +344,8 @@ bool TaskPlayer::CanJump()
 void TaskPlayer::Jump()
 {
 	m_fGround = m_TaskTransform.GetPosition().y;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false, static_cast<int>(E_PlayerAnim::JumpRise1));
 	m_eNowState = E_PlayerState::Jump;
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false, static_cast<int>(E_PlayerAnim::JumpRise1));
 }
 
 void TaskPlayer::Fall()
@@ -395,4 +391,19 @@ void TaskPlayer::Fall()
 		fTime = 0;
 		iAnimCnt = 0;
 	}
+}
+
+void TaskPlayer::SetEvent()
+{
+	m_eNowState = E_PlayerState::Event;
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
+}
+
+KVector2 TaskPlayer::GetCollisionPoint()
+{
+	// 当たり判定を行う、プレイヤーの右下足元の座標
+	KVector3 vSize = m_pCollider->GetSize();
+	KVector3 vCenter = m_pCollider->GetCenter();
+	KVector2 vPoint = KVector2{ vCenter.x + (vSize.x / 2.0f), vCenter.y - (vSize.y / 2.0f) };
+	return vPoint;
 }

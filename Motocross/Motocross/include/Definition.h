@@ -40,3 +40,9 @@ enum class E_TaskDrawNum
 	Default = 900,
 	UI = -1000,
 };
+
+// ƒ^ƒXƒN‚ÌLayer”Ô†
+enum class E_TaskLayerNum
+{
+	Player,
+};

@@ -1,18 +1,19 @@
 #pragma once
 #include "Definition.h"
 #include "LaneManager.h"
-
-#define JUMP_RAMP_NUM	2		// コース内のジャンプ台の数
+#include "CollisionDetector.h"
 
 
 class CourseGenerator
 {
 public:
-	CourseGenerator(LaneManager* pLaneManager);
+	CourseGenerator(LaneManager* pLaneManager, CollisionDetector* pCollisionDetector);
 	~CourseGenerator();
 
 private:
-	LaneManager* m_pLaneManager;
+	LaneManager*		m_pLaneManager;
+	CollisionDetector*	m_pCollisionDetector;
 
+	void InitCourse();
 	void SetJumpRamp(float posX);
 };
