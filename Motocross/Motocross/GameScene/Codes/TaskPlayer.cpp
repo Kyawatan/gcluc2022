@@ -3,12 +3,15 @@
 #include <math.h>
 #include <assert.h>
 #include "ScrapTexQuad.h"
+#include "BoxCollider.h"
 
 
-#define PLAYER_START_POS_X		400
-#define PLAYER_GOAL_POS_X		COURSE_LENGTH - 300
-#define RUN_SPEED		250
-#define CHANGE_SPEED	300
+#define PLAYER_START_POS_X	400
+#define PLAYER_GOAL_POS_X	COURSE_LENGTH - 300
+#define RUN_SPEED			300
+#define CHANGE_SPEED		300
+#define JUMP_VY0			367.75f
+#define GRAVITY				-294.0f
 
 enum class E_PlayerAnim
 {
@@ -16,20 +19,28 @@ enum class E_PlayerAnim
 	Crouch,
 	MoveRight,
 	MoveLeft,
-	MoveEnd,
+	MoveKusshon,
 	JumpReady,
+	JumpRise1,
+	JumpRise2,
+	JumpStay,
+	JumpDescent1,
+	JumpDescent2,
+	JumpEnd,
 };
 
 TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
 	: TaskBase(0, -100, NULL)
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
+	, m_iAnimTexIndex()
 	, m_eNowState(E_PlayerState::Wait)
 	, m_pLaneManager(pLaneManager)
 	, m_eNowLane(E_CourseLane::Center)
 	, m_eNextLane(E_CourseLane::Center)
 	, m_fNextLaneDirection(0)
 	, m_fNextLanePos(pLaneManager->GetLanePos(m_eNextLane))
+	, m_fGround(0)
 	, m_vCameraPos()
 {
 	// タスクの初期トランスフォーム
@@ -41,12 +52,7 @@ TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
 	);
 
 	// スプライト作成
-	TEXTURE_SCRAP_INFO texInfo;
-	texInfo.iTipWidth = 256;
-	texInfo.iTipHeight = 256;
-	texInfo.iTipRow = 4;
-	texInfo.iTipColumn = 3;
-	m_pSprite = new ScrapTexQuad(&m_TaskTransform, 768, 1024, L"GameScene/Images/player_normal.png", &texInfo);
+	m_pSprite = new ScrapTexQuad(&m_TaskTransform);
 	m_pSprite->m_transform.SetPosition(KVector3{ 0, 76, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.AddChild(m_pSprite);
 
@@ -54,6 +60,15 @@ TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
 	m_pAnim = new KawataAnimation();
 	SetAnimation();
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Run), true, NULL);
+
+	// コライダ―作成
+	m_pCollider = new BoxCollider(&m_TaskTransform, KVector3{ 256, 256, 0 });
+	m_pCollider->m_transform.SetTransform(
+		KVector3{ -5, 10, 0 },
+		KVector3{ 0, 0, 0 },
+		KVector3{ 0.47, 0.15, 1 }
+	);
+	m_pCollider->AddLine(); // 補助線表示
 }
 
 TaskPlayer::~TaskPlayer()
@@ -65,12 +80,6 @@ TaskPlayer::~TaskPlayer()
 void TaskPlayer::Update()
 {
 	m_pAnim->Update();
-
-	// スタート合図（仮）
-	if (m_eNowState == E_PlayerState::Wait && GetpKeyState()->Down(E_KEY_NAME::SPACE))
-	{
-		m_eNowState = E_PlayerState::Normal;
-	}
 
 	if (CanAutoRun())
 	{
@@ -105,7 +114,7 @@ void TaskPlayer::Update()
 			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
 			{
 				//UndoLane(); // 元にいたレーンに戻る
-				Launch();
+				Jump();
 			}
 		}
 		else if (m_eNowState == E_PlayerState::Jump)
@@ -113,11 +122,22 @@ void TaskPlayer::Update()
 			Fall();
 		}
 	}
+
+	// スタート合図（仮）
+	if (m_eNowState == E_PlayerState::Wait && GetpKeyState()->Down(E_KEY_NAME::SPACE))
+	{
+		m_eNowState = E_PlayerState::Normal;
+	}
 }
 
 void TaskPlayer::Draw()
 {
-	m_pSprite->Draw(m_pAnim->GetCurrentIndex());
+	m_pCollider->DrawLine();
+	
+	int iIndex = m_pAnim->GetCurrentIndex();
+	int iAnimTexIndex = 0; // テクスチャ切り替え
+	if (18 <= iIndex) iAnimTexIndex = 1;
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(m_iAnimTexIndex[iAnimTexIndex],iIndex);
 }
 
 bool TaskPlayer::IsGoal()
@@ -139,6 +159,22 @@ const KVector3 TaskPlayer::GetCameraMovement()
 
 void TaskPlayer::SetAnimation()
 {
+	// テクスチャをセット（index:0～17）
+	TEXTURE_SCRAP_INFO texInfo;
+	texInfo.iTipWidth = 256;
+	texInfo.iTipHeight = 256;
+	texInfo.iTipRow = 6;
+	texInfo.iTipColumn = 3;
+	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 1536, L"GameScene/Images/player_base.png", &texInfo);
+
+	// テクスチャをセット（index:18～27）
+	texInfo.iTipWidth = 256;
+	texInfo.iTipHeight = 256;
+	texInfo.iTipRow = 2;
+	texInfo.iTipColumn = 5;
+	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 512, L"GameScene/Images/player_jump.png", &texInfo);
+
+	//　アニメーションをセット
 	int index = static_cast<int>(E_PlayerAnim::Run);
 	const int runNum = 3;
 	int runOrders[runNum] = { 0, 1, 2 };
@@ -163,11 +199,53 @@ void TaskPlayer::SetAnimation()
 	float leftSpeeds[leftNum] = { 0.1f, 0.1f };
 	m_pAnim->SetAnimationInfo(index, leftNum, leftOrders, leftSpeeds);
 
-	index = static_cast<int>(E_PlayerAnim::MoveEnd);
-	const int rEndNum = 1;
-	int rEndOrders[rEndNum] = { 4 };
-	float rEndSpeeds[rEndNum] = { 0.1f };
-	m_pAnim->SetAnimationInfo(index, rEndNum, rEndOrders, rEndSpeeds);
+	index = static_cast<int>(E_PlayerAnim::MoveKusshon);
+	const int rMoveEndNum = 1;
+	int rMoveEndOrders[rMoveEndNum] = { 4 };
+	float rMoveEndSpeeds[rMoveEndNum] = { 0.1f };
+	m_pAnim->SetAnimationInfo(index, rMoveEndNum, rMoveEndOrders, rMoveEndSpeeds);
+	
+	index = static_cast<int>(E_PlayerAnim::JumpReady);
+	const int rReadyNum = 3;
+	int rReadyOrders[rReadyNum] = { 9, 10, 11 };
+	float rReadySpeeds[rReadyNum] = { 0.15f, 0.15f, 0.15f };
+	m_pAnim->SetAnimationInfo(index, rReadyNum, rReadyOrders, rReadySpeeds);
+
+	index = static_cast<int>(E_PlayerAnim::JumpRise1);
+	const int rRise1Num = 2;
+	int rRise1Orders[rRise1Num] = { 18, 19 };
+	float rRise1Speeds[rRise1Num] = { 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rRise1Num, rRise1Orders, rRise1Speeds);
+
+	index = static_cast<int>(E_PlayerAnim::JumpRise2);
+	const int rRise2Num = 2;
+	int rRise2Orders[rRise2Num] = { 20, 21 };
+	float rRise2Speeds[rRise2Num] = { 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rRise2Num, rRise2Orders, rRise2Speeds);
+
+	index = static_cast<int>(E_PlayerAnim::JumpStay);
+	const int rStayNum = 3;
+	int rStayOrders[rStayNum] = { 22, 23, 24 };
+	float rStaySpeeds[rStayNum] = { 0.1f, 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rStayNum, rStayOrders, rStaySpeeds);
+
+	index = static_cast<int>(E_PlayerAnim::JumpDescent1);
+	const int rDescentNum1 = 2;
+	int rDescentOrders1[rDescentNum1] = { 25, 26 };
+	float rDescentSpeeds1[rDescentNum1] = { 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rDescentNum1, rDescentOrders1, rDescentSpeeds1);
+
+	index = static_cast<int>(E_PlayerAnim::JumpDescent2);
+	const int rDescentNum2 = 1;
+	int rDescentOrders2[rDescentNum2] = { 27 };
+	float rDescentSpeeds2[rDescentNum2] = { 0.1f };
+	m_pAnim->SetAnimationInfo(index, rDescentNum2, rDescentOrders2, rDescentSpeeds2);
+
+	index = static_cast<int>(E_PlayerAnim::JumpEnd);
+	const int rJumpEndNum = 4;
+	int rJumpEndOrders[rJumpEndNum] = { 12, 13, 14, 15 };
+	float rJumpEndSpeeds[rJumpEndNum] = { 0.1f, 0.1f, 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rJumpEndNum, rJumpEndOrders, rJumpEndSpeeds);
 }
 
 /***********************************************************************************
@@ -233,7 +311,7 @@ void TaskPlayer::ChangeLane()
 	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowState = E_PlayerState::Normal;
 	m_eNowLane = m_eNextLane;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveEnd), false, static_cast<int>(E_PlayerAnim::Run));
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
 }
 
 void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
@@ -246,11 +324,11 @@ void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
 	// アニメーションセット
 	if (static_cast<int>(eNextLane) < 0)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), false, static_cast<int>(E_PlayerAnim::MoveRight));
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
 	}
 	else
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), false, static_cast<int>(E_PlayerAnim::MoveLeft));
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
 	}
 }
 
@@ -261,30 +339,60 @@ void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
 bool TaskPlayer::CanJump()
 {
 	if (IsGoal()) return false;
-	if (m_eNowState == E_PlayerState::ChangeLane) return false;
+	if (m_eNowState == E_PlayerState::Normal || m_eNowState == E_PlayerState::Jump) return true;
+	else return false;
 
 	return true;
 }
 
-void TaskPlayer::Launch()
+void TaskPlayer::Jump()
 {
-	//m_fLandingPos = m_TaskTransform.GetPosition().z; // 着地点
-	//m_fVy = JUMP_Vy0; // 初速
-	//m_eNowState = E_PlayerState::Jump;
+	m_fGround = m_TaskTransform.GetPosition().y;
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false, static_cast<int>(E_PlayerAnim::JumpRise1));
+	m_eNowState = E_PlayerState::Jump;
 }
 
 void TaskPlayer::Fall()
 {
-	//m_fVy -= GRABITY * GetDeltaTime(); // 重力加速度
-	//m_TaskTransform.Translate(KVector3{ 0, m_fVy * GetDeltaTime(), 0 }); // 移動
-	//if (m_TaskTransform.GetPosition().y < m_fLandingPos)
-	//{
-	//	KVector3 pos = m_TaskTransform.GetPosition();
-	//	m_TaskTransform.SetPosition(KVector3{ pos.x, m_fLandingPos, pos.z });
-	//	m_eOtakuPlace = E_OtakuPlace::Ground;
-	//	m_fVy = 0;
-	//}
-}
+	// ジャンプは約2.5秒, 高さ約230px
+	const float fMaxHeight = 230.0f;
+	static float fTime = 0;
+	fTime += GetDeltaTime();
+	float fHeight = (JUMP_VY0 * fTime) + (0.5f * GRAVITY * fTime * fTime);
+	KVector3 vPos = m_TaskTransform.GetPosition();
+	m_TaskTransform.SetPosition(KVector3{vPos.x, m_fGround + fHeight, vPos.z});
 
-#define JUMP_Vy0		900		// ジャンプ初速
-#define GRAVITY	9.8	// 加速度
+	// アニメーション切り替え
+	static int iAnimCnt = 0;
+	if (fMaxHeight * 0.5f <= fHeight && iAnimCnt == 0)
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpRise2), true, NULL);
+		iAnimCnt++;
+	}
+	else if (fMaxHeight * 0.9f <= fHeight && iAnimCnt == 1)
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpStay), true, NULL);
+		iAnimCnt++;
+	}
+	else if (fHeight <= fMaxHeight * 0.9f && iAnimCnt == 2)
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent1), true, NULL);
+		iAnimCnt++;
+	}
+	else if (fHeight <= fMaxHeight * 0.5f && iAnimCnt == 3)
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent2), true, NULL);
+		iAnimCnt++;
+	}
+
+	// 着地
+	if (vPos.y < vPos.z)
+	{
+		m_TaskTransform.SetPosition(KVector3{ vPos.x, vPos.z, vPos.z });
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), false, static_cast<int>(E_PlayerAnim::Run));
+		//m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), true, NULL);
+		m_eNowState = E_PlayerState::Normal;
+		fTime = 0;
+		iAnimCnt = 0;
+	}
+}

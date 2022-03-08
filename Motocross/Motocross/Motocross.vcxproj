@@ -147,6 +147,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="GameScene\Codes\CollisionDetector.cpp" />
     <ClCompile Include="GameScene\Codes\CourseGenerator.cpp" />
     <ClCompile Include="GameScene\Codes\LaneManager.cpp" />
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
@@ -160,6 +161,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CameraController.h" />
+    <ClInclude Include="include\CollisionDetector.h" />
     <ClInclude Include="include\CourseGenerator.h" />
     <ClInclude Include="include\Definition.h" />
     <ClInclude Include="include\LaneManager.h" />

@@ -32,6 +32,7 @@ public:
 private:
 	QuadBase* m_pSprite;
 	KawataAnimation* m_pAnim;
+	int m_iAnimTexIndex[2];
 	E_PlayerState m_eNowState;
 
 	LaneManager* m_pLaneManager;
@@ -39,6 +40,8 @@ private:
 	E_CourseLane m_eNextLane;
 	float m_fNextLaneDirection;
 	float m_fNextLanePos;
+
+	float m_fGround;
 
 	KVector3 m_vCameraPos;
 
@@ -54,6 +57,6 @@ private:
 	void SetNextLane(E_CourseChange eNextLane);
 
 	bool CanJump();
-	void Launch();
+	void Jump();
 	void Fall();
 };

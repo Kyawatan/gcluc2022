@@ -2,7 +2,7 @@
 #include "Definition.h"
 #include "LaneManager.h"
 
-#define JUMP_RAMP_NUM		2		// コース内のジャンプ台の数
+#define JUMP_RAMP_NUM	2		// コース内のジャンプ台の数
 
 
 class CourseGenerator
