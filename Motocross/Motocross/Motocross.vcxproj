@@ -150,9 +150,11 @@
     <ClCompile Include="GameScene\Codes\CollisionDetector.cpp" />
     <ClCompile Include="GameScene\Codes\CourseGenerator.cpp" />
     <ClCompile Include="GameScene\Codes\LaneManager.cpp" />
+    <ClCompile Include="GameScene\Codes\QTEController.cpp" />
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskCorn.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskKey.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKobu.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
@@ -166,9 +168,11 @@
     <ClInclude Include="include\Definition.h" />
     <ClInclude Include="include\LaneManager.h" />
     <ClInclude Include="include\Main.h" />
+    <ClInclude Include="include\QTEController.h" />
     <ClInclude Include="include\SceneGame.h" />
     <ClInclude Include="include\TaskBackGround.h" />
     <ClInclude Include="include\TaskCorn.h" />
+    <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
     <ClInclude Include="include\TaskPlayer.h" />
   </ItemGroup>

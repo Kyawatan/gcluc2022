@@ -41,7 +41,7 @@ void CourseGenerator::SetJumpRamp(float posX)
 	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left) + fLaneEdgeOffset;
 	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right) - fLaneEdgeOffset;
 	const int iQTELevel = 4;
-	const int iDistances[iQTELevel] = { 400, 500, 600, 700 }
+	const int iDistances[iQTELevel] = { 600, 900, 1050, 1200 } // 2秒、3秒、3.5秒、4秒
 	;
 	// コーンとコブの距離（4段階、QTEレベル）をランダムで決定
 	std::random_device rd;
@@ -68,10 +68,10 @@ void CourseGenerator::SetJumpRamp(float posX)
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	//dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
+	dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
 
 	// QTE終了位置を登録
-	const float fAdjustment = 100; // コブの手前に調整
+	const float fAdjustment = 90; // コブの手前に調整
 	vStart = KVector2{ posX - fDifference - fAdjustment, fRightPosYZ };
 	vEnd = KVector2{ posX + fDifference - fAdjustment, fLeftPosYZ };
 	cs.eName = E_CollisionName::EndQTE;
@@ -79,5 +79,5 @@ void CourseGenerator::SetJumpRamp(float posX)
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	//dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
+	dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
 }

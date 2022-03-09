@@ -17,8 +17,14 @@ class SceneGame;
 
 class TaskPlayer;
 class TaskBackGround;
+class TaskCorn;
+class TaskKobu;
+class TaskKey;
 
 class CameraController;
+class LaneManager;
+class CollisionDetector;
+class QTEController;
 
 
 /****************************************************
@@ -45,4 +51,5 @@ enum class E_TaskDrawNum
 enum class E_TaskLayerNum
 {
 	Player,
+	Obstacle,
 };

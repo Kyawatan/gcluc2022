@@ -8,7 +8,8 @@ enum class E_PlayerState
 {
 	Wait,		// スタート前、停止中（操作不可、自動前進しない）
 	Normal,		// コースを走っているとき（レーン変更可能、自動前進）
-	ChangeLane,	// レーン変更中（レーン変更不可、自動前進）
+	ChangeLane,	// レーン変更中（操作不可、自動前進）
+	UndoLane,	// レーン変更中（操作不可、自動前進）
 	Jump,		// ジャンプ中（操作不可、自動前進）
 	Event,		// QTE中（操作不可、自動前進）
 	Damage,		// ダメージ（操作不可、自動前進に変化？）
@@ -48,17 +49,16 @@ private:
 
 	KVector3 m_vCameraPos;
 
+	void Init();
 	void SetAnimation();
 
 	void SetCameraMovement(KVector3 vec);
 	bool CanAutoRun();
 	void AutoRun();
 	
-	bool CanChangeLane();
 	void ChangeLane();
-	void UndoLane();
 	void SetNextLane(E_CourseChange eNextLane);
+	void SetUndoLane(E_CourseLane eNextLane);
 
-	bool CanJump();
 	void Fall();
 };

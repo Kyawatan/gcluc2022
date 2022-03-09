@@ -23,13 +23,13 @@ LaneManager::~LaneManager()
 
 E_CourseLane LaneManager::GetCurrentLane(float fPos)
 {
-	assert(m_fLaneRightPos < fPos < m_fLaneLeftPos);
+	assert(m_fLaneRightPos <= fPos && fPos <= m_fLaneLeftPos);
 
-	if (m_fLaneRightPos < fPos)
+	if (m_fLaneRightPos <= fPos && fPos < m_fLaneBorderRightCenterPos)
 	{
 		return E_CourseLane::Right;
 	}
-	else if (fPos < m_fLaneLeftPos)
+	else if (m_fLaneBorderCenterLeftPos < fPos && fPos <= m_fLaneLeftPos)
 	{
 		return E_CourseLane::Left;
 	}
@@ -46,7 +46,7 @@ const float LaneManager::GetLaneInterval()
 
 const float LaneManager::GetLanePos(E_CourseLane eLane)
 {
-	if (eLane == E_CourseLane::Right)
+ 	if (eLane == E_CourseLane::Right)
 	{
 		return m_fLaneRightPos;
 	}
