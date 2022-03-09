@@ -309,18 +309,21 @@ void TaskPlayer::ChangeLane()
 	{
 		return; // 次のレーン（1つ左）まで来ていなければreturn
 	}
+
 	// 次のレーンまで来たらレーン移動終了
 	m_TaskTransform.SetPosition(KVector3{ m_TaskTransform.GetPosition().x, m_fNextLanePos, m_fNextLanePos });
 	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowLane = m_eNextLane;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
+
 	if (m_eNowState == E_PlayerState::ChangeLane)
 	{
 		m_eNowState = E_PlayerState::Normal;
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
 	}
 	else if (m_eNowState == E_PlayerState::UndoLane)
 	{
 		m_eNowState = E_PlayerState::Event;
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
 
 }

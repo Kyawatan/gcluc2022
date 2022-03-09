@@ -6,9 +6,9 @@
 
 QTEController::QTEController()
 	: m_pPlayer(NULL)
+	, m_QTEUIManager()
 	, m_eState(E_QTEState::None)
 	, m_iInputKeyList(NULL)
-	, m_pTaskKeyList(NULL)
 	, m_fInputInvalidTime(INPUT_INVALID_TIME)
 	, m_iCorrespondingKeys()
 {
@@ -36,6 +36,7 @@ void QTEController::Update()
 		break;
 
 	case E_QTEState::During:
+		m_QTEUIManager.DrawInputKeyList(); // UI表示
 		ProceedQTE(); // QTE進行
 		break;
 
@@ -92,7 +93,7 @@ void QTEController::ProceedQTE()
 			SetJump();
 		}
 	}
-	else
+	if (m_iInputKeyList.size() == 0)
 	{
 		// 全てのキーを入力し終えたらQTE成功、トリックをセットする
 		SetTrik();
@@ -109,38 +110,25 @@ void QTEController::SetKey(int iKeyNum)
 	{
 		m_iInputKeyList.push_back((int)distr(eng));
 	}
-	// キーグラフィックを生成する
-	for (auto itr = m_iInputKeyList.begin(); itr != m_iInputKeyList.end();)
-	{
-		TaskBase* key = new TaskKey((*itr));
-		m_pTaskKeyList.push_back(key);
-		++itr;
-	}
 	// 最後は必ずSPACEキー
-	TaskBase* spaceKey = new TaskKey((static_cast<int>(E_UsingKey::SPACE)));
-	m_pTaskKeyList.push_back(spaceKey);
 	m_iInputKeyList.push_back(static_cast<int>(E_UsingKey::SPACE));
+	// キーグラフィック生成
+	m_QTEUIManager.SetInputKeyList(m_iInputKeyList);
+
 }
 
 bool QTEController::JudgeKey()
 {
-	auto itrInputKey = m_iInputKeyList.begin();
-	auto itrTaskKey = m_pTaskKeyList.begin();
-	TaskKey* key = dynamic_cast<TaskKey*>(*itrTaskKey);
-
-	if (!key->GetOnEnable())
-	{
-		key->SetOnEnable(true); // キーグラフィックを画面に表示
-		m_fInputInvalidTime = INPUT_INVALID_TIME;
-	}
-	if (0 < m_fInputInvalidTime)
-	{
-		m_fInputInvalidTime -= GetDeltaTime(); // キー入力無効時間
-		return true;
-	}
+	//	m_fInputInvalidTime = INPUT_INVALID_TIME;
+	//if (0 < m_fInputInvalidTime)
+	//{
+	//	m_fInputInvalidTime -= GetDeltaTime(); // キー入力無効時間
+	//	return true;
+	//}
 
 	// 現在押された瞬間のキーのリストを得る
 	std::list<E_KEY_NAME> pressedKeyList = GetpKeyState()->GetSomeDownKeys();
+	auto itrInputKey = m_iInputKeyList.begin();
 	// 間違ったキーが押されていたらQTE失敗
 	for (auto itr = pressedKeyList.begin(); itr != pressedKeyList.end();)
 	{
@@ -150,25 +138,19 @@ bool QTEController::JudgeKey()
 		}
 		++itr;
 	}
-	// 正しいキーが押されたらキーをリストから外す
+	// 正しいキーが押されたら次の入力キーをセット
 	if (GetpKeyState()->Down(static_cast<E_KEY_NAME>(m_iCorrespondingKeys[(*itrInputKey)])))
 	{
-		(*itrTaskKey)->SetTaskStateDying();
 		m_iInputKeyList.pop_front();
-		m_pTaskKeyList.pop_front();
+		m_QTEUIManager.SetNextInputKey();
 	}
 	return true;
 }
 
 void QTEController::DeleteKey()
 {
-	for (auto itr = m_pTaskKeyList.begin(); itr != m_pTaskKeyList.end();)
-	{
-		(*itr)->SetTaskStateDying();
-		++itr;
-	}
 	m_iInputKeyList.clear();
-	m_pTaskKeyList.clear();
+	m_QTEUIManager.DeleteInputKeyList();
 }
 
 void QTEController::SetTrik()

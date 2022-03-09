@@ -1,8 +1,8 @@
 #pragma once
 #include <list>
 #include "Definition.h"
+#include "QTEUIManager.h"
 #include "TaskPlayer.h"
-#include "TaskKey.h"
 
 // 各トリック難度のキー入力数
 enum class E_TrikDifficulty
@@ -32,13 +32,13 @@ public:
 	void FinishQTE();
 
 private:
-	TaskPlayer* m_pPlayer;
-	E_QTEState m_eState;
-	std::list<int> m_iInputKeyList;			// 決定したキーの番号リスト
-	std::list<TaskBase*> m_pTaskKeyList;	// 決定したキーのタスクリスト
+	TaskPlayer*				m_pPlayer;
+	QTEUIManager			m_QTEUIManager;
+	E_QTEState				m_eState;
+	std::list<int>			m_iInputKeyList;// 決定したキーの番号リスト
 
-	float m_fInputInvalidTime;					// キー入力無効時間
-	int m_iCorrespondingKeys[USING_KEY_NUM];	// QTEで使用するキーを実際のキーコードに対応させる
+	float	m_fInputInvalidTime;					// キー入力無効時間
+	int		m_iCorrespondingKeys[USING_KEY_NUM];	// QTEで使用するキーを実際のキーコードに対応させる
 
 	void ProceedQTE();
 	void SetKey(int iKeyNum);
