@@ -151,6 +151,7 @@
     <ClCompile Include="GameScene\Codes\CourseGenerator.cpp" />
     <ClCompile Include="GameScene\Codes\LaneManager.cpp" />
     <ClCompile Include="GameScene\Codes\QTEController.cpp" />
+    <ClCompile Include="GameScene\Codes\QTEUIManager.cpp" />
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskCorn.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="include\LaneManager.h" />
     <ClInclude Include="include\Main.h" />
     <ClInclude Include="include\QTEController.h" />
+    <ClInclude Include="include\QTEUIManager.h" />
     <ClInclude Include="include\SceneGame.h" />
     <ClInclude Include="include\TaskBackGround.h" />
     <ClInclude Include="include\TaskCorn.h" />

@@ -69,12 +69,12 @@ void QTEController::FinishQTE()
 	if (m_eState == E_QTEState::Success)
 	{
 		// QTEが成功していたらプレイヤーにトリックを決めさせる
-		m_pPlayer->Jump();
+		m_pPlayer->Jump(E_TrikName::NormalJump);
 	}
 	else
 	{
 		// QTEが失敗or継続中であれば、プレイヤーにただのジャンプをさせる
-		m_pPlayer->Jump();
+		m_pPlayer->Jump(E_TrikName::NormalJump);
 		// 残っているキーを削除
 		if (m_eState == E_QTEState::During) DeleteKey();
 	}

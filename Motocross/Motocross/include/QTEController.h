@@ -7,9 +7,9 @@
 // 各トリック難度のキー入力数
 enum class E_TrikDifficulty
 {
-	Beginner = 2,		// 初級
-	Intermediate = 3,	// 中級
-	Advanced = 4,		// 上級
+	Beginner = 2,	// 初級
+	Intermediate,	// 中級
+	Advanced,		// 上級
 };
 
 enum class E_QTEState
@@ -34,8 +34,8 @@ public:
 private:
 	TaskPlayer* m_pPlayer;
 	E_QTEState m_eState;
-	std::list<int> m_iInputKeyList;
-	std::list<TaskBase*> m_pTaskKeyList;
+	std::list<int> m_iInputKeyList;			// 決定したキーの番号リスト
+	std::list<TaskBase*> m_pTaskKeyList;	// 決定したキーのタスクリスト
 
 	float m_fInputInvalidTime;					// キー入力無効時間
 	int m_iCorrespondingKeys[USING_KEY_NUM];	// QTEで使用するキーを実際のキーコードに対応させる

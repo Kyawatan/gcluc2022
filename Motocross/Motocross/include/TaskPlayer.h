@@ -3,7 +3,6 @@
 #include "Definition.h"
 #include "LaneManager.h"
 
-
 enum class E_PlayerState
 {
 	Wait,		// スタート前、停止中（操作不可、自動前進しない）
@@ -13,6 +12,15 @@ enum class E_PlayerState
 	Jump,		// ジャンプ中（操作不可、自動前進）
 	Event,		// QTE中（操作不可、自動前進）
 	Damage,		// ダメージ（操作不可、自動前進に変化？）
+};
+
+enum class E_TrikName
+{
+	NormalJump = 1,	// ただのジャンプ
+	Beginner1,		// 初級1
+	Intermediate1,	// 中級1
+	Advanced1,		// 上級1
+	Num,
 };
 
 
@@ -30,24 +38,23 @@ public:
 	bool IsGoal();
 	const KVector3 GetCameraMovement();
 	void SetEvent();
-	void Jump();
+	void Jump(E_TrikName eTrikName);
 	KVector2 GetCollisionPoint();
 
 private:
-	QuadBase* m_pSprite;
-	KawataAnimation* m_pAnim;
-	int m_iAnimTexIndex[2];
-	E_PlayerState m_eNowState;
+	QuadBase*			m_pSprite;
+	KawataAnimation*	m_pAnim;
+	int					m_iAnimTexIndex[2];
+	E_PlayerState		m_eNowState;
+	int					m_iTrikNum;
 
-	LaneManager* m_pLaneManager;
-	E_CourseLane m_eNowLane;
-	E_CourseLane m_eNextLane;
-	float m_fNextLaneDirection;
-	float m_fNextLanePos;
+	LaneManager*	m_pLaneManager;
+	E_CourseLane	m_eNowLane;
+	E_CourseLane	m_eNextLane;
+	float			m_fNextLaneDirection;
+	float			m_fNextLanePos;
 
-	float m_fGround;
-
-	KVector3 m_vCameraPos;
+	KVector3		m_vCameraPos;
 
 	void Init();
 	void SetAnimation();
@@ -58,7 +65,7 @@ private:
 	
 	void ChangeLane();
 	void SetNextLane(E_CourseChange eNextLane);
-	void SetUndoLane(E_CourseLane eNextLane);
+	void SetPreviousLane(E_CourseLane eNextLane);
 
 	void Fall();
 };
