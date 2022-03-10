@@ -32,7 +32,7 @@ enum class E_PlayerAnim
 
 
 TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
-	: TaskBase(0, -100, static_cast<int>(E_TaskLayerNum::Player))
+	: TaskBase(0, static_cast<int>(E_TaskDrawNum::PlayerDefault), static_cast<int>(E_TaskLayerNum::Player))
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
 	, m_iAnimTexIndex()
@@ -153,7 +153,7 @@ void TaskPlayer::Init()
 		KVector3{ 0, 0, 0 },
 		KVector3{ 0.47, 0.15, 1 }
 	);
-	m_pCollider->AddLine(); // 補助線表示
+	//m_pCollider->AddLine(); // 補助線表示
 }
 
 void TaskPlayer::SetAnimation()
@@ -298,7 +298,7 @@ void TaskPlayer::ChangeLane()
 	float fMovementYZ = m_fNextLaneDirection * CHANGE_SPEED * GetDeltaTime();
 	float fMovementX = fMovementYZ * cos((1.0f / 6.0f) * M_PI);
 	m_TaskTransform.Translate(KVector3{ fMovementX, fMovementYZ, fMovementYZ });
-	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
+	SetDrawNum(-m_TaskTransform.GetPosition().z); // Draw番号更新
 
 	// 次のレーンまで来ていなければreturn
 	if (m_fNextLaneDirection < 0 && m_fNextLanePos <= m_TaskTransform.GetPosition().z)
@@ -312,7 +312,7 @@ void TaskPlayer::ChangeLane()
 
 	// 次のレーンまで来たらレーン移動終了
 	m_TaskTransform.SetPosition(KVector3{ m_TaskTransform.GetPosition().x, m_fNextLanePos, m_fNextLanePos });
-	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
+	SetDrawNum(-m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowLane = m_eNextLane;
 
 	if (m_eNowState == E_PlayerState::ChangeLane)

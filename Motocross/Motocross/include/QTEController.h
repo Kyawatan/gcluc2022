@@ -32,18 +32,16 @@ public:
 	void FinishQTE();
 
 private:
-	TaskPlayer*				m_pPlayer;
-	QTEUIManager			m_QTEUIManager;
-	E_QTEState				m_eState;
-	std::list<int>			m_iInputKeyList;// 決定したキーの番号リスト
-
-	float	m_fInputInvalidTime;					// キー入力無効時間
-	int		m_iCorrespondingKeys[USING_KEY_NUM];	// QTEで使用するキーを実際のキーコードに対応させる
+	TaskPlayer*		m_pPlayer;
+	QTEUIManager	m_QTEUIManager;
+	E_QTEState		m_eState;
+	std::list<int>	m_iInputKeyList;	// 決定したキーの番号リスト
+	float	m_fJudgeInvalidTime;
+	int		m_iCorrespondingKeys[KEY_USING_NUM];	// QTEで使用するキーを実際のキーコードに対応させる
 
 	void ProceedQTE();
 	void SetKey(int iKeyNum);
 	bool JudgeKey();
-	void DeleteKey();
 	void SetTrik();
 	void SetJump();
 };

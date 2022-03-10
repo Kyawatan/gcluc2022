@@ -37,7 +37,7 @@ void SceneGame::Update()
 	{
 	case static_cast<int>(E_CollisionName::StartQTE):
 		// QTEŠJŽn
-		m_QTEController.StartQTE(E_TrikDifficulty::Beginner);
+		m_QTEController.StartQTE(E_TrikDifficulty::Intermediate);
 		break;
 
 	case static_cast<int>(E_CollisionName::EndQTE):

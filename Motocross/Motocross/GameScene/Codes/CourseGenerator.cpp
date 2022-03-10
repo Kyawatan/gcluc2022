@@ -68,7 +68,7 @@ void CourseGenerator::SetJumpRamp(float posX)
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
+	//dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
 
 	// QTE終了位置を登録
 	const float fAdjustment = 90; // コブの手前に調整
@@ -79,5 +79,5 @@ void CourseGenerator::SetJumpRamp(float posX)
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
+	//dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
 }

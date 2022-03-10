@@ -6,7 +6,7 @@
 
 
 TaskCorn::TaskCorn(KVector3 vPos)
-	: TaskBase(0, vPos.z, NULL)
+	: TaskBase(0, -vPos.z, NULL)
 	, m_pSprite(NULL)
 	, m_pCollisionLine(NULL)
 {

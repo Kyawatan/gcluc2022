@@ -1,7 +1,7 @@
 #include "QTEController.h"
 #include <random>
 
-#define INPUT_INVALID_TIME 0.1f
+#define INVALID_TIME 0.1f
 
 
 QTEController::QTEController()
@@ -9,7 +9,7 @@ QTEController::QTEController()
 	, m_QTEUIManager()
 	, m_eState(E_QTEState::None)
 	, m_iInputKeyList(NULL)
-	, m_fInputInvalidTime(INPUT_INVALID_TIME)
+	, m_fJudgeInvalidTime(INVALID_TIME)
 	, m_iCorrespondingKeys()
 {
 	m_iCorrespondingKeys[0] = 30;	// W
@@ -36,7 +36,6 @@ void QTEController::Update()
 		break;
 
 	case E_QTEState::During:
-		m_QTEUIManager.DrawInputKeyList(); // UI表示
 		ProceedQTE(); // QTE進行
 		break;
 
@@ -76,8 +75,13 @@ void QTEController::FinishQTE()
 	{
 		// QTEが失敗or継続中であれば、プレイヤーにただのジャンプをさせる
 		m_pPlayer->Jump(E_TrikName::NormalJump);
-		// 残っているキーを削除
-		if (m_eState == E_QTEState::During) DeleteKey();
+
+		if (m_eState == E_QTEState::During)
+		{
+			// 残っているキーを削除
+			m_iInputKeyList.clear();
+			m_QTEUIManager.DeleteInputKeyList();
+		}
 	}
 	m_eState = E_QTEState::None;
 }
@@ -112,28 +116,30 @@ void QTEController::SetKey(int iKeyNum)
 	}
 	// 最後は必ずSPACEキー
 	m_iInputKeyList.push_back(static_cast<int>(E_UsingKey::SPACE));
-	// キーグラフィック生成
+	// キーUI生成、表示
 	m_QTEUIManager.SetInputKeyList(m_iInputKeyList);
 
 }
 
 bool QTEController::JudgeKey()
 {
-	//	m_fInputInvalidTime = INPUT_INVALID_TIME;
-	//if (0 < m_fInputInvalidTime)
-	//{
-	//	m_fInputInvalidTime -= GetDeltaTime(); // キー入力無効時間
-	//	return true;
-	//}
+	// キー入力無効時間
+	if (0 < m_fJudgeInvalidTime)
+	{
+		m_fJudgeInvalidTime -= GetDeltaTime();
+		return true;
+	}
 
 	// 現在押された瞬間のキーのリストを得る
 	std::list<E_KEY_NAME> pressedKeyList = GetpKeyState()->GetSomeDownKeys();
 	auto itrInputKey = m_iInputKeyList.begin();
-	// 間違ったキーが押されていたらQTE失敗
+	// 間違ったキーが押されていたら入力キーをすべて削除
 	for (auto itr = pressedKeyList.begin(); itr != pressedKeyList.end();)
 	{
 		if ((*itr) != static_cast<E_KEY_NAME>(m_iCorrespondingKeys[(*itrInputKey)]))
 		{
+			m_iInputKeyList.clear();
+			m_QTEUIManager.DeleteInputKeyList();
 			return false;
 		}
 		++itr;
@@ -143,14 +149,9 @@ bool QTEController::JudgeKey()
 	{
 		m_iInputKeyList.pop_front();
 		m_QTEUIManager.SetNextInputKey();
+		m_fJudgeInvalidTime = INVALID_TIME;
 	}
 	return true;
-}
-
-void QTEController::DeleteKey()
-{
-	m_iInputKeyList.clear();
-	m_QTEUIManager.DeleteInputKeyList();
 }
 
 void QTEController::SetTrik()
@@ -160,6 +161,5 @@ void QTEController::SetTrik()
 
 void QTEController::SetJump()
 {
-	DeleteKey();
 	m_eState = E_QTEState::Failure;
 }
