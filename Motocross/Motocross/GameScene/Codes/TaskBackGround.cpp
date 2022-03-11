@@ -2,7 +2,7 @@
 #include "TexQuad.h"
 
 #define TEX_WIDTH	1440
-#define REPEAT_NUM	4
+#define REPEAT_NUM	10
 
 
 TaskBackGround::TaskBackGround()

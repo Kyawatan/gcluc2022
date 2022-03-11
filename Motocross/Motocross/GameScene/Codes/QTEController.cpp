@@ -75,14 +75,10 @@ void QTEController::FinishQTE()
 	{
 		// QTEが失敗or継続中であれば、プレイヤーにただのジャンプをさせる
 		m_pPlayer->Jump(E_TrikName::NormalJump);
-
-		if (m_eState == E_QTEState::During)
-		{
-			// 残っているキーを削除
-			m_iInputKeyList.clear();
-			m_QTEUIManager.DeleteInputKeyList();
-		}
 	}
+	// 残っているキーを削除
+	m_iInputKeyList.clear();
+	m_QTEUIManager.DeleteInputKeyList();
 	m_eState = E_QTEState::None;
 }
 
@@ -156,10 +152,12 @@ bool QTEController::JudgeKey()
 
 void QTEController::SetTrik()
 {
+	m_pPlayer->FinishEvent();
 	m_eState = E_QTEState::Success;
 }
 
 void QTEController::SetJump()
 {
+	m_pPlayer->FinishEvent();
 	m_eState = E_QTEState::Failure;
 }

@@ -45,7 +45,9 @@ void SceneGame::Update()
 		m_QTEController.FinishQTE();
 		break;
 
-	default:
+	case static_cast<int>(E_CollisionName::CourseGoal):
+		// ÉSÅ[Éã
+
 		break;
 	}
 

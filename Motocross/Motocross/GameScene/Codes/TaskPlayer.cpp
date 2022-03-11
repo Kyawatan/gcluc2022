@@ -9,6 +9,7 @@
 #define PLAYER_GOAL_POS_X	COURSE_LENGTH - 300
 #define RUN_SPEED			300
 #define DAMAGE_SPEED		200
+#define QTE_SPEED			100
 #define CHANGE_SPEED		300
 #define JUMP_VY0			367.75f
 #define GRAVITY				-294.0f
@@ -95,7 +96,6 @@ void TaskPlayer::Update()
 			break;
 
 		case E_PlayerState::ChangeLane:
-		case E_PlayerState::UndoLane:
 			ChangeLane(); // レーン移動
 			break;
 
@@ -290,14 +290,19 @@ bool TaskPlayer::CanAutoRun()
 
 void TaskPlayer::AutoRun()
 {
-	float fMovement;
-	if (m_eNowState == E_PlayerState::Damage)
+	// スピードを変える
+	float fMovement = 0;
+	switch (m_eNowState)
 	{
+	case E_PlayerState::Event:
+		fMovement = QTE_SPEED * GetDeltaTime();
+		break;
+	case E_PlayerState::Damage:
 		fMovement = DAMAGE_SPEED * GetDeltaTime();
-	}
-	else
-	{
+		break;
+	default:
 		fMovement = RUN_SPEED * GetDeltaTime();
+		break;
 	}
 
 	m_TaskTransform.Translate(KVector3{ fMovement, 0, 0 });
@@ -337,17 +342,16 @@ void TaskPlayer::ChangeLane()
 	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowLane = m_eNextLane;
 
-	if (m_eNowState == E_PlayerState::ChangeLane)
-	{
-		m_eNowState = E_PlayerState::Normal;
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
-	}
-	else if (m_eNowState == E_PlayerState::UndoLane)
+	if (m_eNowState == E_PlayerState::Event)
 	{
 		m_eNowState = E_PlayerState::Event;
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
-
+	else
+	{
+		m_eNowState = E_PlayerState::Normal;
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
+	}
 }
 
 void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
@@ -373,7 +377,7 @@ void TaskPlayer::SetPreviousLane(E_CourseLane eNextLane)
 	// 元のレーン移動に遷移
 	m_eNextLane = eNextLane;
 	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
-	m_eNowState = E_PlayerState::UndoLane;
+	m_eNowState = E_PlayerState::ChangeLane;
 	if (m_TaskTransform.GetPosition().z < m_fNextLanePos)
 	{
 		m_fNextLaneDirection = static_cast<int>(E_CourseChange::Left);
@@ -456,6 +460,11 @@ void TaskPlayer::SetEvent()
 		m_eNowState = E_PlayerState::Event;
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
+}
+
+void TaskPlayer::FinishEvent()
+{
+	m_eNowState = E_PlayerState::FinishEvent;
 }
 
 KVector2 TaskPlayer::GetCollisionPoint()

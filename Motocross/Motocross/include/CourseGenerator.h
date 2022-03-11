@@ -23,6 +23,6 @@ private:
 	void SetBackGround();
 	void SetGoal();
 
-	void SetJumpRamp(float posX);
-	void SetRock();
+	void SetJumpRamp(float fPosX);
+	void SetRock(float fPosX);
 };

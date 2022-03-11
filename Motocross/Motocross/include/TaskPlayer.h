@@ -8,9 +8,9 @@ enum class E_PlayerState
 	Wait,		// スタート前、停止中（操作不可、自動前進しない）
 	Normal,		// コースを走っているとき（レーン変更可能、自動前進）
 	ChangeLane,	// レーン変更中（操作不可、自動前進）
-	UndoLane,	// レーン変更中（操作不可、自動前進）
 	Jump,		// ジャンプ中（操作不可、自動前進）
-	Event,		// QTE中（操作不可、自動前進）
+	Event,		// QTE中（操作不可、ゆっくり自動前進）
+	FinishEvent,// QTE終了後（操作不可、自動前進）
 	Damage,		// ダメージ（操作不可、自動前進に変化？）
 };
 
@@ -38,6 +38,7 @@ public:
 	bool IsGoal();
 	const KVector3 GetCameraMovement();
 	void SetEvent();
+	void FinishEvent();
 	void Jump(E_TrikName eTrikName);
 	void Damage();
 	KVector2 GetCollisionPoint();

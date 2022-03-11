@@ -8,9 +8,10 @@
 #include "TaskKobu.h"
 #include "TaskRock.h"
 
-#define JUMP_RAMP_NUM		2		// コース内のジャンプ台の数
-#define JUMP_RAMP_PERIOD	2000	// ジャンプ台の間隔
+#define JUMP_RAMP_NUM		3		// コース内のジャンプ台の数
+#define JUMP_RAMP_PERIOD	4000	// ジャンプ台の間隔
 #define KOBU_INTERVAL		550		// ジャンプ始めとジャンプ終わりのコブの間隔
+#define ROCK_PERIOD			300		// 岩の間隔
 
 
 CourseGenerator::CourseGenerator(LaneManager* pLaneManager, CollisionDetector* pCollisionDetector)
@@ -40,8 +41,17 @@ void CourseGenerator::InitCourse()
 	{
 		SetJumpRamp(JUMP_RAMP_PERIOD * (i + 1));
 	}
-	// 岩生成
-	SetRock();
+	// ジャンプ台のない場所に岩生成
+	const int iStartPos = 1000;
+	const int iLastPos = iStartPos + 2000;
+	const int iInterval = 4000;
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = iStartPos; j <= iLastPos; j += ROCK_PERIOD)
+		{
+			SetRock(j + ( i * iInterval));
+		}
+	}
 }
 
 void CourseGenerator::SetBackGround()
@@ -52,7 +62,7 @@ void CourseGenerator::SetBackGround()
 
 void CourseGenerator::SetGoal()
 {
-	const float fGoalPos = m_fCourseLength - 550;
+	const float fGoalPos = m_fCourseLength - 1000;
 	
 	// ゴール鉄骨生成
 	TaskBase* frameLeft = new TaskStealFrame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Left);
@@ -70,11 +80,11 @@ void CourseGenerator::SetGoal()
 	//dynamic_cast<TaskStealFrame*>(frameRight)->DrawCollisionLine(vStart, vEnd);
 }
 
-void CourseGenerator::SetJumpRamp(float posX)
+void CourseGenerator::SetJumpRamp(float fPosX)
 {
 	// コーンとコブの距離（4段階、QTEレベル）をランダムで決定
 	const int iQTELevel = 4;
-	const int iDistances[iQTELevel] = { 600, 900, 1050, 1200 }; // 2秒、3秒、3.5秒、4秒
+	const int iDistances[iQTELevel] = { 300, 400, 500, 600 }; // 3秒、4秒、5秒、6秒
 	std::random_device rd;
 	std::default_random_engine eng(rd());
 	std::uniform_int_distribution<int> distr(0, iQTELevel - 1);
@@ -84,11 +94,11 @@ void CourseGenerator::SetJumpRamp(float posX)
 	const float fLaneEdgeOffset = 40; // レーン中央から端にずらす量
 	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left) + fLaneEdgeOffset;
 	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right) - fLaneEdgeOffset;
-	TaskBase* cornLeft = new TaskCorn(KVector3{ posX - iDistances[fRand] + m_fDifference, fLeftPosYZ, fLeftPosYZ });
-	TaskBase* cornRight = new TaskCorn(KVector3{ posX - iDistances[fRand] - m_fDifference, fRightPosYZ, fRightPosYZ });
+	TaskBase* cornLeft = new TaskCorn(KVector3{ fPosX - iDistances[fRand] + m_fDifference, fLeftPosYZ, fLeftPosYZ });
+	TaskBase* cornRight = new TaskCorn(KVector3{ fPosX - iDistances[fRand] - m_fDifference, fRightPosYZ, fRightPosYZ });
 	// コブ生成
-	TaskBase* kobuStart = new TaskKobu(KVector3{ posX, 0, 0 });
-	TaskBase* kobuEnd = new TaskKobu(KVector3{ posX + KOBU_INTERVAL, 0, 0 });
+	TaskBase* kobuStart = new TaskKobu(KVector3{ fPosX, 0, 0 });
+	TaskBase* kobuEnd = new TaskKobu(KVector3{ fPosX + KOBU_INTERVAL, 0, 0 });
 
 	KVector2 vStart;
 	KVector2 vEnd;
@@ -106,8 +116,8 @@ void CourseGenerator::SetJumpRamp(float posX)
 
 	// QTE終了位置を登録
 	const float fAdjustment = 90; // コブの手前に調整
-	vStart = KVector2{ posX - fAdjustment - m_fDifference, m_fLaneRightEndPos };
-	vEnd = KVector2{ posX - fAdjustment + m_fDifference, m_fLaneLeftEndPos };
+	vStart = KVector2{ fPosX - fAdjustment - m_fDifference, m_fLaneRightEndPos };
+	vEnd = KVector2{ fPosX - fAdjustment + m_fDifference, m_fLaneLeftEndPos };
 	cs.eName = E_CollisionName::EndQTE;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
@@ -116,8 +126,31 @@ void CourseGenerator::SetJumpRamp(float posX)
 	//dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
 }
 
-void CourseGenerator::SetRock()
+void CourseGenerator::SetRock(float fPosX)
 {
-	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left);
-	TaskBase* rock = new TaskRock(KVector3{ 800, fLeftPosYZ, fLeftPosYZ });
+	// 乱数生成
+	std::random_device rd;
+	std::default_random_engine eng(rd());
+	std::uniform_int_distribution<int> distr(0, 2);
+	int fRandNum = (int)distr(eng);	// 同じX座標の岩の個数
+	int fRandLane = (int)distr(eng); // 1個目の岩のレーン
+
+	// 同じX座標に0～2個生成
+	for (int i = 0; i < fRandNum; i++)
+	{
+		// 2個目の岩は1個目の岩のレーンと重ならないようにレーンを1つずらして（1 2 -）（- 1 2）（2 - 1）の3パターンができる
+		float fPosYZ = m_pLaneManager->GetLanePos(static_cast<E_CourseLane>((fRandLane + i) % 3));
+		if (m_pLaneManager->GetCurrentLane(fPosYZ) == E_CourseLane::Left)
+		{
+			TaskBase* rock = new TaskRock(KVector3{ fPosX + m_fDifference, fPosYZ, fPosYZ });
+		}
+		else if (m_pLaneManager->GetCurrentLane(fPosYZ) == E_CourseLane::Right)
+		{
+			TaskBase* rock = new TaskRock(KVector3{ fPosX - m_fDifference, fPosYZ, fPosYZ });
+		}
+		else
+		{
+			TaskBase* rock = new TaskRock(KVector3{ fPosX, fPosYZ, fPosYZ });
+		}
+	}
 }

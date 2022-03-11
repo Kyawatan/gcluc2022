@@ -7,7 +7,7 @@
 
 using namespace Kawata;
 
-#define COURSE_LENGTH 5760	// コース全長
+#define COURSE_LENGTH 14400	// コース全長
 
 /****************************************************
 	class
