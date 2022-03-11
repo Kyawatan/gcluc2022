@@ -4,22 +4,22 @@
 
 
 TaskRock::TaskRock(KVector3 vPos)
-	: TaskBase(0, -vPos.z, NULL)
+	: TaskBase(0, vPos.z, NULL)
 	, m_pSprite(NULL)
 	, m_pPlayer(NULL)
 	, m_onCollisionDetection(false)
 {
 	// スプライト作成
 	m_pSprite = new TexQuad(&m_TaskTransform, 128, 128, L"GameScene/Images/rock.png", 1, 1);
-	m_pSprite->m_transform.SetPosition(KVector3{ 0, 16, 0 }); // イラストの足元をタスクの座標にずらす
+	//m_pSprite->m_transform.SetPosition(KVector3{ 0, -16, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.SetPosition(vPos);
 	
 	// コライダ―作成
 	m_pCollider = new BoxCollider(&m_TaskTransform, KVector3{ 128, 128, 0 });
 	m_pCollider->m_transform.SetTransform(
-		KVector3{ 0, 15, 0 },
+		KVector3{ -20, 0, 0 },
 		KVector3{ 0, 0, 0 },
-		KVector3{ 0.5f, 0.4f, 1 }
+		KVector3{ 0.25f, 0.4f, 1 }
 	);
 	//m_pCollider->AddLine(); // 補助線表示
 }

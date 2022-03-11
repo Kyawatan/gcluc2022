@@ -12,6 +12,9 @@ public:
 	void Update() override;
 	void Draw() override;
 
+	const float GetCourseLength();
+
 private:
 	QuadBase* m_pSprite;
+	const float m_fCourseLength;
 };

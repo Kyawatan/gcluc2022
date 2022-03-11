@@ -39,13 +39,15 @@ enum class E_SceneName
 	Result,
 };
 
-// タスクのDraw順序（番号の大きいものが手前に来る）
+// タスクのDraw順序（番号の小さいものが手前に来る）
 enum class E_TaskDrawNum
 {
-	BackGround = -1000,
-	Default = -900,
-	PlayerDefault = -100,
-	UI = 1000,
+	BackGround		= 1000,
+	Backward		= 900,
+	Default			= 500,
+	PlayerDefault	= -160,
+	Forward			= -500,
+	UI				= -1000,
 };
 
 // タスクのLayer番号

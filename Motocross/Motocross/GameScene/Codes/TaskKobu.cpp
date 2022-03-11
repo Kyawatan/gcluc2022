@@ -25,12 +25,13 @@ void TaskKobu::Update()
 
 void TaskKobu::Draw()
 {
+	m_pSprite->Draw();
+
+	// デバッグ用補助線描画
 	if (m_pCollisionLine != NULL)
 	{
-		// デバッグ用補助線描画
 		m_pCollisionLine->Draw();
 	}
-	m_pSprite->Draw();
 }
 
 void TaskKobu::DrawCollisionLine(KVector2 vStart, KVector2 vEnd)

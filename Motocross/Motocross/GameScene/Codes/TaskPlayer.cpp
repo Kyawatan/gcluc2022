@@ -152,9 +152,12 @@ void TaskPlayer::Init()
 	// コライダ―作成
 	m_pCollider = new BoxCollider(&m_TaskTransform, KVector3{ 256, 256, 0 });
 	m_pCollider->m_transform.SetTransform(
-		KVector3{ -5, 10, 0 },
+		//KVector3{ -5, 10, 0 },
+		//KVector3{ 0, 0, 0 },
+		//KVector3{ 0.47, 0.15, 1 }
+		KVector3{ 27, 15, 0 },
 		KVector3{ 0, 0, 0 },
-		KVector3{ 0.47, 0.15, 1 }
+		KVector3{ 0.2, 0.2, 1 }
 	);
 	//m_pCollider->AddLine(); // 補助線表示
 }
@@ -317,7 +320,7 @@ void TaskPlayer::ChangeLane()
 	float fMovementYZ = m_fNextLaneDirection * CHANGE_SPEED * GetDeltaTime();
 	float fMovementX = fMovementYZ * cos((1.0f / 6.0f) * M_PI);
 	m_TaskTransform.Translate(KVector3{ fMovementX, fMovementYZ, fMovementYZ });
-	SetDrawNum(-m_TaskTransform.GetPosition().z); // Draw番号更新
+	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 
 	// 次のレーンまで来ていなければreturn
 	if (m_fNextLaneDirection < 0 && m_fNextLanePos <= m_TaskTransform.GetPosition().z)
@@ -331,7 +334,7 @@ void TaskPlayer::ChangeLane()
 
 	// 次のレーンまで来たらレーン移動終了
 	m_TaskTransform.SetPosition(KVector3{ m_TaskTransform.GetPosition().x, m_fNextLanePos, m_fNextLanePos });
-	SetDrawNum(-m_TaskTransform.GetPosition().z); // Draw番号更新
+	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
 	m_eNowLane = m_eNextLane;
 
 	if (m_eNowState == E_PlayerState::ChangeLane)
@@ -478,6 +481,15 @@ void TaskPlayer::DamageMotion()
 {
 	if (m_pAnim->IsFinishAnimation())
 	{
-		m_eNowState = E_PlayerState::Normal;
+		// 今いるレーンの中央へ戻る
+		float currentPos = m_TaskTransform.GetPosition().z;
+		if (currentPos != m_pLaneManager->GetLanePos(m_eNowLane))
+		{
+			SetPreviousLane(m_pLaneManager->GetCurrentLane(currentPos));
+		}
+		else
+		{
+			m_eNowState = E_PlayerState::Normal;
+		}
 	}
 }

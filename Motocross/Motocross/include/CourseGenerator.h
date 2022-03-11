@@ -13,8 +13,16 @@ public:
 private:
 	LaneManager*		m_pLaneManager;
 	CollisionDetector*	m_pCollisionDetector;
+	const float			m_fDifference; // Zé≤ÇÃç∑ï™
+	float				m_fCourseLength;
+	float				m_fLaneLeftEndPos;
+	float				m_fLaneRightEndPos;
 
 	void InitCourse();
+
+	void SetBackGround();
+	void SetGoal();
+
 	void SetJumpRamp(float posX);
 	void SetRock();
 };
