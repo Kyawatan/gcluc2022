@@ -8,6 +8,7 @@
 #define PLAYER_START_POS_X	400
 #define PLAYER_GOAL_POS_X	COURSE_LENGTH - 300
 #define RUN_SPEED			300
+#define DAMAGE_SPEED		200
 #define CHANGE_SPEED		300
 #define JUMP_VY0			367.75f
 #define GRAVITY				-294.0f
@@ -28,6 +29,7 @@ enum class E_PlayerAnim
 	JumpDescent1,
 	JumpDescent2,
 	JumpEnd,
+	Damage,
 };
 
 
@@ -77,7 +79,7 @@ void TaskPlayer::Update()
 		case E_PlayerState::Wait:
 			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
 			{
-				m_eNowState = E_PlayerState::Normal;
+				m_eNowState = E_PlayerState::Normal; // ゲームスタート
 			}
 			break;
 
@@ -105,6 +107,7 @@ void TaskPlayer::Update()
 			break;
 
 		case E_PlayerState::Damage:
+			DamageMotion();
 			break;
 
 		default:
@@ -115,12 +118,12 @@ void TaskPlayer::Update()
 
 void TaskPlayer::Draw()
 {
-	m_pCollider->DrawLine();
-	
 	int iIndex = m_pAnim->GetCurrentIndex();
 	int iAnimTexIndex = 0; // テクスチャ切り替え
 	if (JUMP_NUM <= iIndex) iAnimTexIndex = 1;
 	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(m_iAnimTexIndex[iAnimTexIndex],iIndex);
+
+	m_pCollider->DrawLine();
 }
 
 bool TaskPlayer::IsGoal()
@@ -216,6 +219,12 @@ void TaskPlayer::SetAnimation()
 	float rJumpEndSpeeds[rJumpEndNum] = { 0.1f, 0.1f, 0.1f, 0.1f };
 	m_pAnim->SetAnimationInfo(index, rJumpEndNum, rJumpEndOrders, rJumpEndSpeeds);
 
+	index = static_cast<int>(E_PlayerAnim::Damage);
+	const int rJDamageNum = 10;
+	int rDamageOrders[rJDamageNum] = { 9, 10, 11, 20, 22, 25, 12, 13, 14, 15 };
+	float rDamageSpeeds[rJDamageNum] = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
+	m_pAnim->SetAnimationInfo(index, rJDamageNum, rDamageOrders, rDamageSpeeds);
+
 	// 各トリックのアニメーション
 	//for (int i = 1; i < static_cast<int>(E_TrikName::Num); i++)
 	for (int i = 1; i < 2; i++)
@@ -278,8 +287,18 @@ bool TaskPlayer::CanAutoRun()
 
 void TaskPlayer::AutoRun()
 {
-	m_TaskTransform.Translate(KVector3{ RUN_SPEED * GetDeltaTime(), 0, 0 });
-	SetCameraMovement(KVector3{ RUN_SPEED * GetDeltaTime(), 0, 0 });
+	float fMovement;
+	if (m_eNowState == E_PlayerState::Damage)
+	{
+		fMovement = DAMAGE_SPEED * GetDeltaTime();
+	}
+	else
+	{
+		fMovement = RUN_SPEED * GetDeltaTime();
+	}
+
+	m_TaskTransform.Translate(KVector3{ fMovement, 0, 0 });
+	SetCameraMovement(KVector3{ fMovement, 0, 0 });
 	if (IsGoal())
 	{
 		KVector3 vPos = m_TaskTransform.GetPosition();
@@ -443,4 +462,22 @@ KVector2 TaskPlayer::GetCollisionPoint()
 	KVector3 vCenter = m_pCollider->GetCenter();
 	KVector2 vPoint = KVector2{ vCenter.x + (vSize.x / 2.0f), vCenter.y - (vSize.y / 2.0f) };
 	return vPoint;
+}
+
+/***********************************************************************************
+	Damage
+*************************************************************************************/
+
+void TaskPlayer::Damage()
+{
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Damage), false, static_cast<int>(E_PlayerAnim::Run));
+	m_eNowState = E_PlayerState::Damage;
+}
+
+void TaskPlayer::DamageMotion()
+{
+	if (m_pAnim->IsFinishAnimation())
+	{
+		m_eNowState = E_PlayerState::Normal;
+	}
 }

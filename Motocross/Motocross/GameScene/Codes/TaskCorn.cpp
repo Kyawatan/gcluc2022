@@ -1,8 +1,6 @@
 #include "TaskCorn.h"
 #include "TexQuad.h"
 #include "Line.h"
-#include "BoxCollider.h"
-#include "TaskPlayer.h"
 
 
 TaskCorn::TaskCorn(KVector3 vPos)

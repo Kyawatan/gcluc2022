@@ -5,6 +5,7 @@
 #include "TaskBackGround.h"
 #include "TaskCorn.h"
 #include "TaskKobu.h"
+#include "TaskRock.h"
 
 #define JUMP_RAMP_NUM		2		// コース内のジャンプ台の数
 #define JUMP_RAMP_PERIOD	2000	// ジャンプ台の間隔
@@ -32,6 +33,8 @@ void CourseGenerator::InitCourse()
 	{
 		SetJumpRamp(JUMP_RAMP_PERIOD * (i + 1));
 	}
+	// 岩生成
+	SetRock();
 }
 
 void CourseGenerator::SetJumpRamp(float posX)
@@ -80,4 +83,10 @@ void CourseGenerator::SetJumpRamp(float posX)
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
 	//dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
+}
+
+void CourseGenerator::SetRock()
+{
+	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left);
+	TaskBase* rock = new TaskRock(KVector3{ 800, fLeftPosYZ, fLeftPosYZ });
 }

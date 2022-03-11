@@ -16,4 +16,5 @@ private:
 
 	void InitCourse();
 	void SetJumpRamp(float posX);
+	void SetRock();
 };

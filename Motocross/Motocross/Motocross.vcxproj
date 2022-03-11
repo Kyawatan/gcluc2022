@@ -158,6 +158,7 @@
     <ClCompile Include="GameScene\Codes\TaskKey.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKobu.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskRock.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
     <ClCompile Include="Main\WinMain.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
     <ClInclude Include="include\TaskPlayer.h" />
+    <ClInclude Include="include\TaskRock.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

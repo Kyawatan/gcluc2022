@@ -39,6 +39,7 @@ public:
 	const KVector3 GetCameraMovement();
 	void SetEvent();
 	void Jump(E_TrikName eTrikName);
+	void Damage();
 	KVector2 GetCollisionPoint();
 
 private:
@@ -68,4 +69,6 @@ private:
 	void SetPreviousLane(E_CourseLane eNextLane);
 
 	void Fall();
+
+	void DamageMotion();
 };
