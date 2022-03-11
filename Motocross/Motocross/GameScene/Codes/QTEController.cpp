@@ -135,6 +135,7 @@ bool QTEController::JudgeKey()
 		if ((*itr) != static_cast<E_KEY_NAME>(m_iCorrespondingKeys[(*itrInputKey)]))
 		{
 			m_iInputKeyList.clear();
+			m_QTEUIManager.SetFailure();
 			m_QTEUIManager.DeleteInputKeyList();
 			return false;
 		}

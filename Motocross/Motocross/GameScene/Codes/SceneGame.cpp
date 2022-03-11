@@ -49,6 +49,11 @@ void SceneGame::Update()
 		// ÉSÅ[Éã
 
 		break;
+
+	case static_cast<int>(E_CollisionName::ScoringGate):
+		// â¡ì_
+
+		break;
 	}
 
 	m_QTEController.Update();

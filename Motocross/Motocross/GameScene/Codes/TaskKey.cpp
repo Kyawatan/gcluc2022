@@ -68,7 +68,7 @@ void TaskKey::FadeIn(E_KeyPossition eKeyPos)
 
 void TaskKey::FadeIn()
 {
-	m_fOpacity += GetDeltaTime() * 5; // 0.2ïb
+	m_fOpacity += GetDeltaTime() * 10; // 0.1ïb
 	m_pSprite->SetOpacity(m_fOpacity);
 
 	// èIóπ
@@ -130,7 +130,7 @@ void  TaskKey::TranslatetoNext()
 		//	m_pSprite->m_transform.SetScale(KVec3Add(vScale, KVector3{ 0.02f, 0.02f, 0 }));
 		//}
 	}
-	m_vPos = KVec3Add(m_vPos, KVector3{ -1000 * GetDeltaTime(), 0, 0 });
+	m_vPos = KVec3Add(m_vPos, KVector3{ -1280 * GetDeltaTime(), 0, 0 }); // 0.1ïb
 
 	// à⁄ìÆÇ™èIóπÇµÇƒÇ¢Ç»ÇØÇÍÇŒreturn
 	if (SetPosition(m_eCurrentKeyPos).x < m_vPos.x) return;
@@ -143,6 +143,11 @@ void  TaskKey::TranslatetoNext()
 	}
 	m_vPos = SetPosition(m_eCurrentKeyPos);
 	ExitFunc();
+}
+
+void TaskKey::FailureEffect()
+{
+	m_pSprite->SetDiffuse(KVector3{ 1, 0.2, 0 });
 }
 
 KVector3 TaskKey::SetPosition(E_KeyPossition eKeyPos)

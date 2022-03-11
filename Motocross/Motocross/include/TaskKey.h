@@ -41,6 +41,8 @@ public:
 	void SuccessEffect();
 	void TranslatetoNext();
 
+	void FailureEffect();
+
 private:
 	QuadBase*		m_pSprite;
 	E_KeyPossition	m_eCurrentKeyPos;
@@ -50,9 +52,9 @@ private:
 	int				m_iKeyCode;
 	bool			m_isOnce;
 
-	void (TaskKey::* m_pFunc)(); // 関数ポインタ
-	void SetFunc(void (TaskKey::* pFunc)()); // 実行する関数をセットする
-	void ExitFunc();
+	void (TaskKey::* m_pFunc)();				// 関数ポインタ
+	void SetFunc(void (TaskKey::* pFunc)());	// 実行する関数をセットする
+	void ExitFunc();							// 処理が終了した関数から抜ける
 
 	KVector3 SetPosition(E_KeyPossition eKeyPos);
 };

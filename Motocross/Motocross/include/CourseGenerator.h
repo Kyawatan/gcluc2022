@@ -21,8 +21,10 @@ private:
 	void InitCourse();
 
 	void SetBackGround();
+	void SetStart();
 	void SetGoal();
 
 	void SetJumpRamp(float fPosX);
+	void SetGate(float fPosX);
 	void SetRock(float fPosX);
 };

@@ -19,6 +19,9 @@ public:
 	// リストに残っているキーをすべて削除
 	void DeleteInputKeyList();
 
+	// 入力ミスしたNowキーを赤くする
+	void SetFailure();
+
 private:
 	std::list<TaskBase*> m_pTaskKeyList;
 };

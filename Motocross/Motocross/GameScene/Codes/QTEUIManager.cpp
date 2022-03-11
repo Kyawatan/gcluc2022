@@ -65,3 +65,9 @@ void QTEUIManager::DeleteInputKeyList()
 	}
 	m_pTaskKeyList.clear();
 }
+
+void QTEUIManager::SetFailure()
+{
+	auto itr = m_pTaskKeyList.begin();
+	dynamic_cast<TaskKey*>(*itr)->FailureEffect();
+}

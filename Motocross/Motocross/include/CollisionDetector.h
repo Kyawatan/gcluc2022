@@ -13,6 +13,7 @@ enum class E_CollisionName
 	CourseGoal,
 	StartQTE,
 	EndQTE,
+	ScoringGate,
 };
 
 struct COLLISION

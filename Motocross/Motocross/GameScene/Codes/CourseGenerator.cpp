@@ -34,23 +34,28 @@ void CourseGenerator::InitCourse()
 {
 	// 背景生成
 	SetBackGround();
+	// スタート生成
+	SetStart();
 	// ゴール生成
 	SetGoal();
-	// ジャンプ台生成
+	// ジャンプ台生成（4000, 8000, 12000）
 	for (int i = 0; i < JUMP_RAMP_NUM; i++)
 	{
 		SetJumpRamp(JUMP_RAMP_PERIOD * (i + 1));
 	}
-	// ジャンプ台のない場所に岩生成
+	// ジャンプ台のない場所に各オブジェクトを生成（1000～3000、5000～7000、9000～11000）
 	const int iStartPos = 1000;
 	const int iLastPos = iStartPos + 2000;
 	const int iInterval = 4000;
 	for (int i = 0; i < 3; i++)
 	{
+		// 岩生成
 		for (int j = iStartPos; j <= iLastPos; j += ROCK_PERIOD)
 		{
 			SetRock(j + ( i * iInterval));
 		}
+		// 小加点ゲート生成
+		//SetGate(800);
 	}
 }
 
@@ -58,6 +63,15 @@ void CourseGenerator::SetBackGround()
 {
 	TaskBackGround* back = new TaskBackGround();
 	m_fCourseLength = back->GetCourseLength();
+}
+
+void CourseGenerator::SetStart()
+{
+	const float fStartPos = 250;
+
+	// スタート鉄骨生成
+	TaskBase* frameLeft = new TaskStealFrame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Left);
+	TaskBase* frameRight = new TaskStealFrame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Base);
 }
 
 void CourseGenerator::SetGoal()
@@ -124,6 +138,30 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
 	//dynamic_cast<TaskKobu*>(kobuStart)->DrawCollisionLine(vStart, vEnd);
+}
+
+void CourseGenerator::SetGate(float fPosX)
+{
+	float fLanePos = m_pLaneManager->GetLanePos(E_CourseLane::Center);
+
+	// 左右コーン生成
+	const float fLaneEdgeOffset = 50; // レーン中央から端にずらす量
+
+	float fLeftPosYZ = fLanePos + fLaneEdgeOffset;
+	float fRightPosYZ = fLanePos - fLaneEdgeOffset;
+	TaskBase* cornLeft = new TaskCorn(KVector3{ fPosX + (m_fDifference * 0.35f), fLeftPosYZ, fLeftPosYZ });
+	TaskBase* cornRight = new TaskCorn(KVector3{ fPosX - (m_fDifference * 0.35f), fRightPosYZ, fRightPosYZ });
+
+	// 加点位置を登録
+	KVector2 vStart = KVector2{ cornRight->m_TaskTransform.GetPosition().x, cornRight->m_TaskTransform.GetPosition().y };
+	KVector2 vEnd = KVector2{ cornLeft->m_TaskTransform.GetPosition().x, cornLeft->m_TaskTransform.GetPosition().y };
+	COLLISION cs;
+	cs.eName = E_CollisionName::ScoringGate;
+	cs.vStart = vStart;
+	cs.vEnd = vEnd;
+	//m_pCollisionDetector->SetCollision(cs);
+	// デバッグ用補助線表示
+	dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
 }
 
 void CourseGenerator::SetRock(float fPosX)
