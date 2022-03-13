@@ -12,6 +12,13 @@ enum class E_GameState
 	AfterGoal,
 };
 
+enum class E_TrikDifficulty
+{
+	Beginner = 2,	// ‰‹‰
+	Intermediate,	// ’†‹‰
+	Advanced,		// ã‹‰
+};
+
 class GameDirector
 {
 public:
@@ -23,6 +30,8 @@ public:
 	E_GameState const GetCurrentGameState();
 	E_EventName const GetCurrentEventName();
 
+	E_TrikDifficulty const GetQTEDifficulty();
+
 	TaskPlayer* GetPlayerInstance();
 	LaneManager* GetLaneManagerInstance();
 	CollisionDetector* GetCollisionDetectorInstance();
@@ -33,6 +42,10 @@ private:
 	LaneManager			m_LaneManager;
 	CollisionDetector	m_CollisionDetector;
 	TaskPlayer* m_pPlayer;
+
+	E_TrikDifficulty m_QTEDifficulty;
+
+	void SetQTEDifficulty();
 
 	// SceneGameƒNƒ‰ƒX‚¾‚¯‚ªŒÄ‚Ño‚·
 	void SetPlayerInstance(TaskPlayer* pPlayer);

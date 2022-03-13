@@ -3,10 +3,7 @@
 #include "CameraController.h"
 #include "GameDirector.h"
 #include "CourseGenerator.h"
-
-//#include "LaneManager.h"
 #include "QTEController.h"
-//#include "CollisionDetector.h"
 
 class SceneGame : public SceneBase
 {
@@ -19,10 +16,8 @@ public:
 private:
 	CameraController	m_CameraController;
 	GameDirector		m_GameDirector;
-	//LaneManager			m_LaneManager;
 	CourseGenerator		m_CourseGenerator;
 	QTEController		m_QTEController;
-	//CollisionDetector	m_CollisionDetector;
 
 	TaskBase* m_pPlayer;
 };

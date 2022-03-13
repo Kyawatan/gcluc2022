@@ -16,7 +16,8 @@
 #define JUMP_VY0			367.75f
 #define GRAVITY				-294.0f
 
-#define JUMP_NUM 18	// player_jump.pngのチップの開始番号
+#define JUMP_NUM			18			// player_jump.pngのチップの開始番号
+#define TRIK_ANIM_INDEX(i)	5 * (i - 1)	// 各トリックアニメーションのインデックス
 
 enum class E_PlayerAnim
 {
@@ -71,8 +72,8 @@ TaskPlayer::~TaskPlayer()
 
 void TaskPlayer::Update()
 {
-	m_vMovement = KVector3{ 0, 0, 0 };
 	m_pAnim->Update();
+	m_vMovement = KVector3{ 0, 0, 0 };
 	if (CanAutoRun()) AutoRun(); // 自動前進
 
 	if (m_pGameDirector->GetCurrentGameState() == E_GameState::Playing)
@@ -103,16 +104,20 @@ void TaskPlayer::Update()
 		case E_PlayerState::Damage:
 			Damage();
 			break;
-
-		case E_PlayerState::Event:
-			break;
-
-		default:
-			break;
 		}
 	}
 
-	
+	switch (m_pGameDirector->GetCurrentEventName())
+	{
+	case E_EventName::QTEStart:
+		SetEvent();
+		break;
+
+	case E_EventName::QTEEnd:
+		FinishEvent(false);
+		SetJump();
+		break;
+	}
 }
 
 void TaskPlayer::Draw()
@@ -162,7 +167,7 @@ void TaskPlayer::SetAnimation()
 	// テクスチャをセット（index:18～27）
 	texInfo.iTipWidth = 256;
 	texInfo.iTipHeight = 256;
-	texInfo.iTipRow = 2;
+	texInfo.iTipRow = 8;
 	texInfo.iTipColumn = 5;
 	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"GameScene/Images/player_jump.png", &texInfo);
 
@@ -216,40 +221,46 @@ void TaskPlayer::SetAnimation()
 	m_pAnim->SetAnimationInfo(index, rJDamageNum, rDamageOrders, rDamageSpeeds);
 
 	// 各トリックのアニメーション
-	for (int i = 1; i < static_cast<int>(E_TrikName::Num); i++)
-	//for (int i = 1; i < 2; i++)
+	int iNum = JUMP_NUM;
+	index = static_cast<int>(E_PlayerAnim::JumpRise1);
+	for (int i = static_cast<int>(E_TrikName::NormalJump); i < static_cast<int>(E_TrikName::Num); i++)
 	{
-		int iNum = JUMP_NUM * i;
-
-		index = static_cast<int>(E_PlayerAnim::JumpRise1) * i;
+		// JumpRise1
 		const int rRise1Num = 2;
 		int rRise1Orders[rRise1Num] = { iNum, iNum += 1 };
 		float rRise1Speeds[rRise1Num] = { 0.1f, 0.1f };
 		m_pAnim->SetAnimationInfo(index, rRise1Num, rRise1Orders, rRise1Speeds);
 
-		index = static_cast<int>(E_PlayerAnim::JumpRise2) * i;
+		// JumpRise2
+		index++;
 		const int rRise2Num = 2;
 		int rRise2Orders[rRise2Num] = { iNum += 1, iNum += 1 };
 		float rRise2Speeds[rRise2Num] = { 0.1f, 0.1f };
 		m_pAnim->SetAnimationInfo(index, rRise2Num, rRise2Orders, rRise2Speeds);
 
-		index = static_cast<int>(E_PlayerAnim::JumpStay) * i;
+		// JumpStay
+		index++;
 		const int rStayNum = 3;
 		int rStayOrders[rStayNum] = { iNum += 1, iNum += 1, iNum += 1 };
 		float rStaySpeeds[rStayNum] = { 0.1f, 0.1f, 0.1f };
 		m_pAnim->SetAnimationInfo(index, rStayNum, rStayOrders, rStaySpeeds);
 
-		index = static_cast<int>(E_PlayerAnim::JumpDescent1) * i;
+		// JumpDescent1
+		index++;
 		const int rDescentNum1 = 2;
 		int rDescentOrders1[rDescentNum1] = { iNum += 1, iNum += 1 };
 		float rDescentSpeeds1[rDescentNum1] = { 0.1f, 0.1f };
 		m_pAnim->SetAnimationInfo(index, rDescentNum1, rDescentOrders1, rDescentSpeeds1);
 
-		index = static_cast<int>(E_PlayerAnim::JumpDescent2) * i;
+		// JumpDescent2
+		index++;
 		const int rDescentNum2 = 1;
 		int rDescentOrders2[rDescentNum2] = { iNum += 1 };
 		float rDescentSpeeds2[rDescentNum2] = { 0.1f };
 		m_pAnim->SetAnimationInfo(index, rDescentNum2, rDescentOrders2, rDescentSpeeds2);
+
+		iNum++;
+		index++;
 	}
 }
 
@@ -379,15 +390,17 @@ void TaskPlayer::ChangeLane()
 	Jump
 *************************************************************************************/
 
-void TaskPlayer::SetTrik(E_TrikName eTrikName)
+void TaskPlayer::SetJump()
 {
-	m_iTrikNum = static_cast<int>(eTrikName); // 今から行うトリックをセット
 	m_eCurrentState = E_PlayerState::Jump;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false, static_cast<int>(E_PlayerAnim::JumpRise1));
+	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false,
+		static_cast<int>(E_PlayerAnim::JumpRise1) + TRIK_ANIM_INDEX(m_iTrikNum));
 }
 
 void TaskPlayer::Jump()
 {
+	assert(0 < m_iTrikNum);
+
 	// ジャンプは約2.5秒, 高さ約230px
 	const float fMaxHeight = 230.0f;
 	static float fTime = 0;
@@ -400,22 +413,22 @@ void TaskPlayer::Jump()
 	static int iAnimCnt = 0;
 	if (fMaxHeight * 0.5f <= fHeight && iAnimCnt == 0)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpRise2) * m_iTrikNum, true, NULL);
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpRise2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fMaxHeight * 0.9f <= fHeight && iAnimCnt == 1)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpStay) * m_iTrikNum, true, NULL);
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpStay) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fHeight <= fMaxHeight * 0.9f && iAnimCnt == 2)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent1) * m_iTrikNum, true, NULL);
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent1) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fHeight <= fMaxHeight * 0.5f && iAnimCnt == 3)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent2) * m_iTrikNum, true, NULL);
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 
@@ -464,11 +477,12 @@ void TaskPlayer::Damage()
 	QTE
 *************************************************************************************/
 
-
 void TaskPlayer::SetEvent()
 {
 	m_fAutoRunSpeed = RUN_SPEED_QTE;
 	m_eCurrentState = E_PlayerState::Event;
+	// デフォルトでただのジャンプをセットする
+	m_iTrikNum = static_cast<int>(E_TrikName::NormalJump);
 
 	// レーン移動中なら今いるレーンの中央へ戻る
 	if (m_canChangeLane)
@@ -481,7 +495,26 @@ void TaskPlayer::SetEvent()
 	}
 }
 
-void TaskPlayer::FinishEvent()
+void TaskPlayer::FinishEvent(bool isSuccessful)
 {
 	m_fAutoRunSpeed = RUN_SPEED_NORMAL;
+
+	// QTE成功ならトリックをセットする
+	if (isSuccessful)
+	{
+		switch (m_pGameDirector->GetQTEDifficulty())
+		{
+		case E_TrikDifficulty::Beginner:
+			m_iTrikNum = static_cast<int>(E_TrikName::Beginner1);
+			break;
+
+		case E_TrikDifficulty::Intermediate:
+			m_iTrikNum = static_cast<int>(E_TrikName::Intermediate1);
+			break;
+		
+		case E_TrikDifficulty::Advanced:
+			m_iTrikNum = static_cast<int>(E_TrikName::Advanced1);
+			break;
+		}
+	}
 }

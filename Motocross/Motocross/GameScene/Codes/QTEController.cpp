@@ -8,8 +8,8 @@ QTEController::QTEController(GameDirector* pGameDirector)
 	: m_pGameDirector(pGameDirector)
 	, m_pPlayer(NULL)
 	, m_QTEUIManager()
-	, m_eState(E_QTEState::None)
 	, m_iInputKeyList(NULL)
+	, m_onQTE(false)
 	, m_fJudgeInvalidTime(INVALID_TIME)
 	, m_iCorrespondingKeys()
 {
@@ -36,60 +36,35 @@ void QTEController::Update()
 	case E_EventName::QTEStart:
 		// QTE開始
 		if (m_pPlayer == NULL) m_pPlayer = m_pGameDirector->GetPlayerInstance();
-		StartQTE(E_TrikDifficulty::Beginner);
+		StartQTE();
 		break;
 
 	case E_EventName::QTEEnd:
-		// QTE終了
-		FinishQTE();
+		// QTE継続中なら終了
+		if (m_onQTE) FinishQTE();
 		break;
 	}
 
-	switch (m_eState)
+	if (m_onQTE)
 	{
-	case E_QTEState::None:
-		break;
-
-	case E_QTEState::During:
 		ProceedQTE(); // QTE進行
-		break;
-
-	case E_QTEState::Success:
-		
-		break;
-
-	case E_QTEState::Failure:
-		
-		break;
 	}
 }
 
-void QTEController::StartQTE(E_TrikDifficulty eTrikDifficulty)
+void QTEController::StartQTE()
 {
-	// 入力キー決定
-	int iTrikDifficulty = static_cast<int>(eTrikDifficulty);
+	// 入力キー数決定
+	int iTrikDifficulty = static_cast<int>(m_pGameDirector->GetQTEDifficulty());
 	SetKey(iTrikDifficulty);
-	m_eState = E_QTEState::During;
-	m_pPlayer->SetEvent(); // プレイヤーをイベント発生状態にする
+	m_onQTE = true;
 }
 
 void QTEController::FinishQTE()
 {
-	if (m_eState == E_QTEState::Success)
-	{
-		// QTEが成功していたらプレイヤーにトリックを決めさせる
-		m_pPlayer->SetTrik(E_TrikName::NormalJump);
-	}
-	else
-	{
-		// QTEが失敗or継続中であれば、プレイヤーにただのジャンプをさせる
-		m_pPlayer->FinishEvent();
-		m_pPlayer->SetTrik(E_TrikName::NormalJump);
-	}
 	// 残っているキーを削除
 	m_iInputKeyList.clear();
 	m_QTEUIManager.DeleteInputKeyList();
-	m_eState = E_QTEState::None;
+	m_onQTE = false;
 }
 
 void QTEController::ProceedQTE()
@@ -99,14 +74,16 @@ void QTEController::ProceedQTE()
 		// 入力キーがまだ残っていればキー判定
 		if (!JudgeKey())
 		{
-			// キー入力を間違えたらQTE失敗、ただのジャンプをセットする
-			SetJump();
+			// キー入力を間違えたらQTE失敗
+			FinishQTE();
+			m_pPlayer->FinishEvent(false);
 		}
 	}
-	if (m_iInputKeyList.size() == 0)
+	else
 	{
-		// 全てのキーを入力し終えたらQTE成功、トリックをセットする
-		SetTrik();
+		// 全てのキーを入力し終えたらQTE成功
+		FinishQTE();
+		m_pPlayer->FinishEvent(true);
 	}
 }
 
@@ -159,16 +136,4 @@ bool QTEController::JudgeKey()
 		m_fJudgeInvalidTime = INVALID_TIME;
 	}
 	return true;
-}
-
-void QTEController::SetTrik()
-{
-	m_pPlayer->FinishEvent();
-	m_eState = E_QTEState::Success;
-}
-
-void QTEController::SetJump()
-{
-	m_pPlayer->FinishEvent();
-	m_eState = E_QTEState::Failure;
 }

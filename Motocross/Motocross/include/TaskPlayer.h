@@ -33,9 +33,7 @@ public:
 	const KVector3 GetMovement();
 	const KVector2 GetCollisionPoint();
 
-	void SetEvent();
-	void FinishEvent();
-	void SetTrik(E_TrikName eTrikName);
+	void FinishEvent(bool isSuccessful);
 	void SetDamage();
 
 private:
@@ -66,7 +64,9 @@ private:
 	void SetChangeLane(E_CourseChange eNextCourse);
 	void ChangeLane();
 
+	void SetJump();
 	void Jump();
-
 	void Damage();
+
+	void SetEvent();
 };

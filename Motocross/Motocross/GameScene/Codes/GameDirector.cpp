@@ -11,6 +11,7 @@ GameDirector::GameDirector()
 	, m_LaneManager()
 	, m_CollisionDetector()
 	, m_pPlayer(NULL)
+	, m_QTEDifficulty()
 {
 
 }
@@ -45,6 +46,29 @@ CollisionDetector* GameDirector::GetCollisionDetectorInstance()
 {
 	assert(&m_CollisionDetector != NULL);
 	return &m_CollisionDetector;
+}
+
+E_TrikDifficulty const GameDirector::GetQTEDifficulty()
+{
+	return m_QTEDifficulty;
+}
+
+void GameDirector::SetQTEDifficulty()
+{
+	switch (m_LaneManager.GetCurrentLane(m_pPlayer->m_TaskTransform.GetPosition().z))
+	{
+	case E_CourseLane::Right:
+		m_QTEDifficulty = E_TrikDifficulty::Beginner;
+		break;
+
+	case E_CourseLane::Center:
+		m_QTEDifficulty = E_TrikDifficulty::Intermediate;
+		break;
+
+	case E_CourseLane::Left:
+		m_QTEDifficulty = E_TrikDifficulty::Advanced;
+		break;
+	}
 }
 
 void GameDirector::SetPlayerInstance(TaskPlayer* pPlayer)
@@ -82,6 +106,7 @@ void GameDirector::Update()
 	{
 	case static_cast<int>(E_EventName::QTEStart):
 		// QTEŠJŽn
+		SetQTEDifficulty();
 		m_eCurrentEventName = E_EventName::QTEStart;
 		break;
 

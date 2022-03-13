@@ -6,10 +6,8 @@ SceneGame::SceneGame()
 	: SceneBase()
 	, m_CameraController()
 	, m_GameDirector()
-	//, m_LaneManager()
 	, m_CourseGenerator(&m_GameDirector)
 	, m_QTEController(&m_GameDirector)
-	//, m_CollisionDetector()
 	, m_pPlayer(NULL)
 {
 	// ÉRÅ[ÉXê∂ê¨
