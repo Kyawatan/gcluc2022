@@ -22,11 +22,11 @@ TaskKey::TaskKey(int iKeyCode)
 	m_pSprite->SetOpacity(0); // 透明
 	// テクスチャをセット
 	TEXTURE_SCRAP_INFO texInfo;
-	texInfo.iTipWidth = 128;
-	texInfo.iTipHeight = 128;
+	texInfo.iTipWidth = 256;
+	texInfo.iTipHeight = 256;
 	texInfo.iTipRow = 3;
 	texInfo.iTipColumn = 3;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(384, 384, L"GameScene/Images/keys.png", &texInfo);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 768, L"GameScene/Images/keys.png", &texInfo);
 }
 
 TaskKey::~TaskKey()

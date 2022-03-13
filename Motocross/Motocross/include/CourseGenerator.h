@@ -1,14 +1,15 @@
 #pragma once
 #include "Definition.h"
-#include "LaneManager.h"
-#include "CollisionDetector.h"
+#include "GameDirector.h"
 
 
 class CourseGenerator
 {
 public:
-	CourseGenerator(LaneManager* pLaneManager, CollisionDetector* pCollisionDetector);
+	CourseGenerator(GameDirector* pGameDirector);
 	~CourseGenerator();
+
+	void Init();
 
 private:
 	LaneManager*		m_pLaneManager;
@@ -17,8 +18,6 @@ private:
 	float				m_fCourseLength;
 	float				m_fLaneLeftEndPos;
 	float				m_fLaneRightEndPos;
-
-	void InitCourse();
 
 	void SetBackGround();
 	void SetStart();

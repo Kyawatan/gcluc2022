@@ -3,11 +3,11 @@
 #include "Definition.h"
 
 
-class TaskCorn : public TaskBase
+class TaskFlag : public TaskBase
 {
 public:
-	TaskCorn(KVector3 vPos);
-	~TaskCorn();
+	TaskFlag(KVector3 vPos);
+	~TaskFlag();
 
 	void Update() override;
 	void Draw() override;

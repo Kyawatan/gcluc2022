@@ -9,22 +9,22 @@ using namespace Kawata;
 
 #define COURSE_LENGTH 14400	// コース全長
 
-/****************************************************
-	class
-****************************************************/
-
-class SceneGame;
-
-class TaskPlayer;
-class TaskBackGround;
-class TaskCorn;
-class TaskKobu;
-class TaskKey;
-
-class CameraController;
-class LaneManager;
-class CollisionDetector;
-class QTEController;
+///****************************************************
+//	class
+//****************************************************/
+//
+//class SceneGame;
+//
+//class TaskPlayer;
+//class TaskBackGround;
+//class TaskFlag;
+//class TaskKobu;
+//class TaskKey;
+//
+//class CameraController;
+//class LaneManager;
+//class CollisionDetector;
+//class QTEController;
 
 
 /****************************************************

@@ -1,4 +1,6 @@
 #include "CollisionDetector.h"
+#include "GameDirector.h"
+#include "TaskPlayer.h"
 
 
 CollisionDetector::CollisionDetector()
@@ -12,7 +14,7 @@ CollisionDetector::~CollisionDetector()
 	m_collisionList.clear();
 }
 
-void CollisionDetector::SetCollision(COLLISION Collision)
+void CollisionDetector::SetCollision(EVENT_COLLISION Collision)
 {
 	m_collisionList.push_back(Collision);
 }
@@ -30,7 +32,7 @@ int CollisionDetector::CollisionDetection(KVector2 vPoint)
 		if (iDot == iMag)
 		{
 			// è’ìÀÇµÇƒÇ¢ÇÈ
-			E_CollisionName eName = (*itr).eName;
+			E_EventName eName = (*itr).eName;
 			m_collisionList.pop_front();
 			return static_cast<int>(eName);
 		}

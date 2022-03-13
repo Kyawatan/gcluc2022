@@ -4,8 +4,9 @@
 #define INVALID_TIME 0.1f
 
 
-QTEController::QTEController()
-	: m_pPlayer(NULL)
+QTEController::QTEController(GameDirector* pGameDirector)
+	: m_pGameDirector(pGameDirector)
+	, m_pPlayer(NULL)
 	, m_QTEUIManager()
 	, m_eState(E_QTEState::None)
 	, m_iInputKeyList(NULL)
@@ -30,6 +31,20 @@ QTEController::~QTEController()
 
 void QTEController::Update()
 {
+	switch (m_pGameDirector->GetCurrentEventName())
+	{
+	case E_EventName::StartQTE:
+		// QTE開始
+		if (m_pPlayer == NULL) m_pPlayer = m_pGameDirector->GetPlayerInstance();
+		StartQTE(E_TrikDifficulty::Beginner);
+		break;
+
+	case E_EventName::EndQTE:
+		// QTE終了
+		FinishQTE();
+		break;
+	}
+
 	switch (m_eState)
 	{
 	case E_QTEState::None:
@@ -49,12 +64,6 @@ void QTEController::Update()
 	}
 }
 
-void QTEController::SetPlayerInstance(TaskPlayer* pPlayer)
-{
-	if (m_pPlayer != NULL) return;
-	m_pPlayer = pPlayer;
-}
-
 void QTEController::StartQTE(E_TrikDifficulty eTrikDifficulty)
 {
 	// 入力キー決定
@@ -69,12 +78,13 @@ void QTEController::FinishQTE()
 	if (m_eState == E_QTEState::Success)
 	{
 		// QTEが成功していたらプレイヤーにトリックを決めさせる
-		m_pPlayer->Jump(E_TrikName::NormalJump);
+		m_pPlayer->SetTrik(E_TrikName::NormalJump);
 	}
 	else
 	{
 		// QTEが失敗or継続中であれば、プレイヤーにただのジャンプをさせる
-		m_pPlayer->Jump(E_TrikName::NormalJump);
+		m_pPlayer->FinishEvent();
+		m_pPlayer->SetTrik(E_TrikName::NormalJump);
 	}
 	// 残っているキーを削除
 	m_iInputKeyList.clear();

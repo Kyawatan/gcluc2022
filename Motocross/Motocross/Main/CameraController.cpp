@@ -1,14 +1,15 @@
 #include "CameraController.h"
 
+
 #define EYEPT_Z				-870
 #define CAMERA_START_POS_X	650
 #define CAMERA_GOAL_POS_X	COURSE_LENGTH - CAMERA_START_POS_X
 
 
 CameraController::CameraController()
-	: m_pCamera(NULL)
+	: m_pCamera(GetpCamera())
 {
-	m_pCamera = GetpCamera();
+
 }
 
 CameraController::~CameraController()

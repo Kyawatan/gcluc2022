@@ -1,10 +1,12 @@
 #pragma once
 #include "Definition.h"
 #include "CameraController.h"
-#include "LaneManager.h"
+#include "GameDirector.h"
 #include "CourseGenerator.h"
-#include "CollisionDetector.h"
+
+//#include "LaneManager.h"
 #include "QTEController.h"
+//#include "CollisionDetector.h"
 
 class SceneGame : public SceneBase
 {
@@ -15,11 +17,12 @@ public:
 	void Update() override;
 
 private:
-	CameraController	m_MainCamera;
-	LaneManager			m_LaneManager;
-	CollisionDetector	m_CollisionDetector;
+	CameraController	m_CameraController;
+	GameDirector		m_GameDirector;
+	//LaneManager			m_LaneManager;
 	CourseGenerator		m_CourseGenerator;
 	QTEController		m_QTEController;
+	//CollisionDetector	m_CollisionDetector;
 
-	TaskBase*			m_pPlayer;
+	TaskBase* m_pPlayer;
 };

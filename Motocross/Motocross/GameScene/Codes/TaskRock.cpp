@@ -44,7 +44,7 @@ void TaskRock::Update()
 	COLLISION playerCollision;
 	if (m_pCollider->OnHit(m_pPlayer, &playerCollision))
 	{
-		m_pPlayer->Damage(); // プレイヤーにダメージ
+		m_pPlayer->SetDamage(); // プレイヤーにダメージ
 		m_pCollider->SetInvalid(); // コライダ―無効
 	}
 }

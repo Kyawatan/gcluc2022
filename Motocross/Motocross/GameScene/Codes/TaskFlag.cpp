@@ -1,31 +1,31 @@
-#include "TaskCorn.h"
+#include "TaskFlag.h"
 #include "TexQuad.h"
 #include "Line.h"
 
 
-TaskCorn::TaskCorn(KVector3 vPos)
+TaskFlag::TaskFlag(KVector3 vPos)
 	: TaskBase(0, vPos.z, NULL)
 	, m_pSprite(NULL)
 	, m_pCollisionLine(NULL)
 {
 	// スプライト生成
-	m_pSprite = new TexQuad(&m_TaskTransform, 64, 64, L"GameScene/Images/corn.png", 1, 1);
+	m_pSprite = new TexQuad(&m_TaskTransform, 64, 64, L"GameScene/Images/flag.png", 1, 1);
 	m_pSprite->m_transform.SetPosition(KVector3{ 0, 16, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.SetPosition(vPos);
 }
 
-TaskCorn::~TaskCorn()
+TaskFlag::~TaskFlag()
 {
 	delete m_pSprite;
 	if (m_pCollisionLine != NULL) delete m_pCollisionLine;
 }
 
-void TaskCorn::Update()
+void TaskFlag::Update()
 {
 
 }
 
-void TaskCorn::Draw()
+void TaskFlag::Draw()
 {
 	if (m_pCollisionLine != NULL)
 	{
@@ -35,7 +35,7 @@ void TaskCorn::Draw()
 	m_pSprite->Draw();
 }
 
-void TaskCorn::DrawCollisionLine(KVector2 vStart, KVector2 vEnd)
+void TaskFlag::DrawCollisionLine(KVector2 vStart, KVector2 vEnd)
 {
 	// 既に補助線が有効であればreturn
 	if (m_pCollisionLine != NULL) return;

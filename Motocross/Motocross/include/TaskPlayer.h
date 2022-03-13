@@ -1,17 +1,14 @@
 #pragma once
 #include "QuadBase.h"
 #include "Definition.h"
-#include "LaneManager.h"
+#include "GameDirector.h"
 
 enum class E_PlayerState
 {
-	Wait,		// スタート前、停止中（操作不可、自動前進しない）
 	Normal,		// コースを走っているとき（レーン変更可能、自動前進）
-	ChangeLane,	// レーン変更中（操作不可、自動前進）
 	Jump,		// ジャンプ中（操作不可、自動前進）
+	Damage,		// ダメージ（操作不可、ゆっくり自動前進）
 	Event,		// QTE中（操作不可、ゆっくり自動前進）
-	FinishEvent,// QTE終了後（操作不可、自動前進）
-	Damage,		// ダメージ（操作不可、自動前進に変化？）
 };
 
 enum class E_TrikName
@@ -27,49 +24,48 @@ enum class E_TrikName
 class TaskPlayer : public TaskBase
 {
 public:
-	friend class PlayerController;
-
-	TaskPlayer(LaneManager* pLaneManager);
+	TaskPlayer(GameDirector* pGameDirector);
 	~TaskPlayer();
 
 	void Update() override;
 	void Draw() override;
 
-	bool IsGoal();
-	const KVector3 GetCameraMovement();
+	const KVector3 GetMovement();
+	const KVector2 GetCollisionPoint();
+
 	void SetEvent();
 	void FinishEvent();
-	void Jump(E_TrikName eTrikName);
-	void Damage();
-	KVector2 GetCollisionPoint();
+	void SetTrik(E_TrikName eTrikName);
+	void SetDamage();
 
 private:
+	GameDirector*		m_pGameDirector;
 	QuadBase*			m_pSprite;
 	KawataAnimation*	m_pAnim;
 	int					m_iAnimTexIndex[2];
-	E_PlayerState		m_eNowState;
+	E_PlayerState		m_eCurrentState;
 	int					m_iTrikNum;
 
+	float			m_fAutoRunSpeed;
+
 	LaneManager*	m_pLaneManager;
-	E_CourseLane	m_eNowLane;
+	E_CourseLane	m_eCurrentLane;
 	E_CourseLane	m_eNextLane;
 	float			m_fNextLaneDirection;
 	float			m_fNextLanePos;
+	bool			m_canChangeLane;
 
-	KVector3		m_vCameraPos;
+	KVector3		m_vMovement;
 
 	void Init();
 	void SetAnimation();
 
-	void SetCameraMovement(KVector3 vec);
-	bool CanAutoRun();
 	void AutoRun();
 	
+	void SetChangeLane(E_CourseChange eNextCourse);
 	void ChangeLane();
-	void SetNextLane(E_CourseChange eNextLane);
-	void SetPreviousLane(E_CourseLane eNextLane);
 
-	void Fall();
+	void Jump();
 
-	void DamageMotion();
+	void Damage();
 };

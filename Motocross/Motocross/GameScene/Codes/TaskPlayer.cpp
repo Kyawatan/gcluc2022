@@ -6,10 +6,12 @@
 #include "BoxCollider.h"
 
 #define PLAYER_START_POS_X	400
-#define PLAYER_GOAL_POS_X	COURSE_LENGTH - 300
-#define RUN_SPEED			300
-#define DAMAGE_SPEED		200
-#define QTE_SPEED			100
+#define PLAYER_GOAL_POS_X	COURSE_LENGTH - 500
+
+#define RUN_SPEED_NORMAL	300
+#define RUN_SPEED_DAMAGE	200
+#define RUN_SPEED_QTE		100
+
 #define CHANGE_SPEED		300
 #define JUMP_VY0			367.75f
 #define GRAVITY				-294.0f
@@ -23,30 +25,33 @@ enum class E_PlayerAnim
 	MoveRight,
 	MoveLeft,
 	MoveKusshon,
+	Damage,
 	JumpReady,
+	JumpEnd,
 	JumpRise1,
 	JumpRise2,
 	JumpStay,
 	JumpDescent1,
 	JumpDescent2,
-	JumpEnd,
-	Damage,
 };
 
 
-TaskPlayer::TaskPlayer(LaneManager* pLaneManager)
+TaskPlayer::TaskPlayer(GameDirector* pGameDirector)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::PlayerDefault), static_cast<int>(E_TaskLayerNum::Player))
+	, m_pGameDirector(pGameDirector)
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
 	, m_iAnimTexIndex()
-	, m_eNowState(E_PlayerState::Wait)
+	, m_eCurrentState(E_PlayerState::Normal)
 	, m_iTrikNum(0)
-	, m_pLaneManager(pLaneManager)
-	, m_eNowLane(E_CourseLane::Center)
+	, m_pLaneManager(pGameDirector->GetLaneManagerInstance())
+	, m_fAutoRunSpeed(RUN_SPEED_NORMAL)
+	, m_eCurrentLane(E_CourseLane::Center)
 	, m_eNextLane(E_CourseLane::Center)
 	, m_fNextLaneDirection(0)
-	, m_fNextLanePos(pLaneManager->GetLanePos(m_eNextLane))
-	, m_vCameraPos()
+	, m_fNextLanePos(m_pLaneManager->GetLanePos(m_eNextLane))
+	, m_canChangeLane(false)
+	, m_vMovement()
 {
 	// タスクの初期トランスフォーム
 	m_TaskTransform.SetTransform
@@ -66,54 +71,48 @@ TaskPlayer::~TaskPlayer()
 
 void TaskPlayer::Update()
 {
+	m_vMovement = KVector3{ 0, 0, 0 };
 	m_pAnim->Update();
 
-	if (CanAutoRun())
+	if (m_pGameDirector->GetCurrentGameState() == E_GameState::Playing)
 	{
 		AutoRun();
-	}
+		if (m_canChangeLane) ChangeLane();
 
-	if (!IsGoal())
-	{
-		switch (m_eNowState)
+		switch (m_eCurrentState)
 		{
-		case E_PlayerState::Wait:
-			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
-			{
-				m_eNowState = E_PlayerState::Normal; // ゲームスタート
-			}
-			break;
-
 		case E_PlayerState::Normal:
-			if (m_eNowLane != E_CourseLane::Left && GetpKeyState()->Down(E_KEY_NAME::W))
+			// W/Sキーでレーン移動
+			if (!m_canChangeLane)
 			{
-				SetNextLane(E_CourseChange::Left);	// 1つ左のレーンへ移動する
+				if (m_eCurrentLane != E_CourseLane::Left && GetpKeyState()->Down(E_KEY_NAME::W))
+				{
+					SetChangeLane(E_CourseChange::Left); // 1つ左のレーンへ移動する
+				}
+				else if (m_eCurrentLane != E_CourseLane::Right && GetpKeyState()->Down(E_KEY_NAME::S))
+				{
+					SetChangeLane(E_CourseChange::Right); // 1つ右のレーンへ移動する
+				}
 			}
-			else if (m_eNowLane != E_CourseLane::Right && GetpKeyState()->Down(E_KEY_NAME::S))
-			{
-				SetNextLane(E_CourseChange::Right); // 1つ右のレーンへ移動する
-			}
-			break;
-
-		case E_PlayerState::ChangeLane:
-			ChangeLane(); // レーン移動
 			break;
 
 		case E_PlayerState::Jump:
-			Fall();	// 自由落下
-			break;
-
-		case E_PlayerState::Event:
+			Jump();
 			break;
 
 		case E_PlayerState::Damage:
-			DamageMotion();
+			Damage();
+			break;
+
+		case E_PlayerState::Event:
 			break;
 
 		default:
 			break;
 		}
 	}
+
+	
 }
 
 void TaskPlayer::Draw()
@@ -124,18 +123,6 @@ void TaskPlayer::Draw()
 	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(m_iAnimTexIndex[iAnimTexIndex],iIndex);
 
 	m_pCollider->DrawLine();
-}
-
-bool TaskPlayer::IsGoal()
-{
-	if (PLAYER_GOAL_POS_X <= m_TaskTransform.GetPosition().x)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
 }
 
 void TaskPlayer::Init()
@@ -177,7 +164,7 @@ void TaskPlayer::SetAnimation()
 	texInfo.iTipHeight = 256;
 	texInfo.iTipRow = 2;
 	texInfo.iTipColumn = 5;
-	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 512, L"GameScene/Images/player_jump.png", &texInfo);
+	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"GameScene/Images/player_jump.png", &texInfo);
 
 	//　アニメーションをセット
 	int index = static_cast<int>(E_PlayerAnim::Run);
@@ -229,8 +216,8 @@ void TaskPlayer::SetAnimation()
 	m_pAnim->SetAnimationInfo(index, rJDamageNum, rDamageOrders, rDamageSpeeds);
 
 	// 各トリックのアニメーション
-	//for (int i = 1; i < static_cast<int>(E_TrikName::Num); i++)
-	for (int i = 1; i < 2; i++)
+	for (int i = 1; i < static_cast<int>(E_TrikName::Num); i++)
+	//for (int i = 1; i < 2; i++)
 	{
 		int iNum = JUMP_NUM * i;
 
@@ -266,58 +253,86 @@ void TaskPlayer::SetAnimation()
 	}
 }
 
+const KVector3 TaskPlayer::GetMovement()
+{
+	return m_vMovement;
+}
+
+const KVector2 TaskPlayer::GetCollisionPoint()
+{
+	// 当たり判定を行う、プレイヤーの右下足元の座標
+	KVector3 vSize = m_pCollider->GetSize();
+	KVector3 vCenter = m_pCollider->GetCenter();
+	KVector2 vPoint = KVector2{ vCenter.x + (vSize.x / 2.0f), vCenter.y - (vSize.y / 2.0f) };
+	return vPoint;
+}
+
 /***********************************************************************************
 	AutoRun
 *************************************************************************************/
 
-const KVector3 TaskPlayer::GetCameraMovement()
-{
-	return m_vCameraPos;
-}
-
-void TaskPlayer::SetCameraMovement(KVector3 vec)
-{
-	m_vCameraPos = vec;
-}
-
-bool TaskPlayer::CanAutoRun()
-{
-	if (IsGoal()) return false;
-	if (m_eNowState == E_PlayerState::Wait) return false;
-
-	return true;
-}
-
 void TaskPlayer::AutoRun()
 {
-	// スピードを変える
-	float fMovement = 0;
-	switch (m_eNowState)
-	{
-	case E_PlayerState::Event:
-		fMovement = QTE_SPEED * GetDeltaTime();
-		break;
-	case E_PlayerState::Damage:
-		fMovement = DAMAGE_SPEED * GetDeltaTime();
-		break;
-	default:
-		fMovement = RUN_SPEED * GetDeltaTime();
-		break;
-	}
+	assert(PLAYER_START_POS_X <= m_TaskTransform.GetPosition().x && m_TaskTransform.GetPosition().x <= PLAYER_GOAL_POS_X);
+	
+	// 停止中ならreturn
+	if (m_fAutoRunSpeed == 0) return;
 
-	m_TaskTransform.Translate(KVector3{ fMovement, 0, 0 });
-	SetCameraMovement(KVector3{ fMovement, 0, 0 });
-	if (IsGoal())
+	// 移動
+	m_vMovement = KVector3{ m_fAutoRunSpeed * GetDeltaTime(), 0, 0 };
+	m_TaskTransform.Translate(m_vMovement);
+	KVector3 vPos = m_TaskTransform.GetPosition();
+
+	// ゴールに到達したら停止
+	if (PLAYER_GOAL_POS_X <= vPos.x)
 	{
-		KVector3 vPos = m_TaskTransform.GetPosition();
 		m_TaskTransform.SetPosition(KVector3{ PLAYER_GOAL_POS_X, vPos.y, vPos.z });
+		m_fAutoRunSpeed = 0;
 	}
-	assert(PLAYER_START_POS_X <= m_TaskTransform.GetPosition().x < PLAYER_GOAL_POS_X);
 }
 
 /***********************************************************************************
 	ChangeLane
 *************************************************************************************/
+
+void TaskPlayer::SetChangeLane(E_CourseChange eNextLane)
+{
+	float vCurrentPosZ = m_TaskTransform.GetPosition().z;
+	if (eNextLane == E_CourseChange::Here)
+	{
+		// 今いるレーンに戻るとき、そのレーンの中央座標への方向
+		if (m_eCurrentLane == m_pLaneManager->GetCurrentLane(vCurrentPosZ))
+		{
+			if (vCurrentPosZ < m_pLaneManager->GetLanePos(m_eCurrentLane))
+			{
+				m_fNextLaneDirection = static_cast<int>(E_CourseChange::Left);
+			}
+			else
+			{
+				m_fNextLaneDirection = static_cast<int>(E_CourseChange::Right);
+			}
+		}
+	}
+	else
+	{
+		m_fNextLaneDirection = static_cast<int>(eNextLane);
+	}
+
+	// 次のレーンを決定する
+	m_eNextLane = static_cast<E_CourseLane>(static_cast<int>(m_eCurrentLane) + m_fNextLaneDirection);
+	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
+	m_canChangeLane = true;
+
+	// 次のレーンへの方向に応じたアニメーションセット
+	if (eNextLane == E_CourseChange::Right)
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
+	}
+	else
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
+	}
+}
 
 void TaskPlayer::ChangeLane()
 {
@@ -340,69 +355,69 @@ void TaskPlayer::ChangeLane()
 	// 次のレーンまで来たらレーン移動終了
 	m_TaskTransform.SetPosition(KVector3{ m_TaskTransform.GetPosition().x, m_fNextLanePos, m_fNextLanePos });
 	SetDrawNum(m_TaskTransform.GetPosition().z); // Draw番号更新
-	m_eNowLane = m_eNextLane;
+	m_eCurrentLane = m_eNextLane;
+	m_canChangeLane = false;
 
-	if (m_eNowState == E_PlayerState::Event)
+	// プレイヤーの状態に応じたアニメーションセット
+	if (m_eCurrentState == E_PlayerState::Event)
 	{
-		m_eNowState = E_PlayerState::Event;
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
 	else
 	{
-		m_eNowState = E_PlayerState::Normal;
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
 	}
 }
 
-void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
-{
-	// 次のレーンを決定してレーン移動に遷移
-	m_eNextLane = static_cast<E_CourseLane>(static_cast<int>(m_eNowLane) + static_cast<int>(eNextLane));
-	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
-	m_fNextLaneDirection = static_cast<int>(eNextLane);
-	m_eNowState = E_PlayerState::ChangeLane;
-	// アニメーションセット
-	if (static_cast<int>(eNextLane) < 0)
-	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
-	}
-	else
-	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
-	}
-}
-
-void TaskPlayer::SetPreviousLane(E_CourseLane eNextLane)
-{
-	// 元のレーン移動に遷移
-	m_eNextLane = eNextLane;
-	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
-	m_eNowState = E_PlayerState::ChangeLane;
-	if (m_TaskTransform.GetPosition().z < m_fNextLanePos)
-	{
-		m_fNextLaneDirection = static_cast<int>(E_CourseChange::Left);
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
-	}
-	else
-	{
-		m_fNextLaneDirection = static_cast<int>(E_CourseChange::Right);
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
-	}
-		
-}
+//void TaskPlayer::SetNextLane(E_CourseChange eNextLane)
+//{
+//	// 次のレーンを決定してレーン移動に遷移
+//	m_eNextLane = static_cast<E_CourseLane>(static_cast<int>(m_eCurrentLane) + static_cast<int>(eNextLane));
+//	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
+//	m_fNextLaneDirection = static_cast<int>(eNextLane);
+//	m_eCurrentState = E_PlayerState::ChangeLane;
+//	// アニメーションセット
+//	if (static_cast<int>(eNextLane) < 0)
+//	{
+//		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
+//	}
+//	else
+//	{
+//		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
+//	}
+//}
+//
+//void TaskPlayer::SetPreviousLane(E_CourseLane eNextLane)
+//{
+//	// 元のレーン移動に遷移
+//	m_eNextLane = eNextLane;
+//	m_fNextLanePos = m_pLaneManager->GetLanePos(m_eNextLane);
+//	m_eCurrentState = E_PlayerState::ChangeLane;
+//	if (m_TaskTransform.GetPosition().z < m_fNextLanePos)
+//	{
+//		m_fNextLaneDirection = static_cast<int>(E_CourseChange::Left);
+//		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
+//	}
+//	else
+//	{
+//		m_fNextLaneDirection = static_cast<int>(E_CourseChange::Right);
+//		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
+//	}
+//		
+//}
 
 /***********************************************************************************
 	Jump
 *************************************************************************************/
 
-void TaskPlayer::Jump(E_TrikName eTrikName)
+void TaskPlayer::SetTrik(E_TrikName eTrikName)
 {
 	m_iTrikNum = static_cast<int>(eTrikName); // 今から行うトリックをセット
-	m_eNowState = E_PlayerState::Jump;
+	m_eCurrentState = E_PlayerState::Jump;
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false, static_cast<int>(E_PlayerAnim::JumpRise1));
 }
 
-void TaskPlayer::Fall()
+void TaskPlayer::Jump()
 {
 	// ジャンプは約2.5秒, 高さ約230px
 	const float fMaxHeight = 230.0f;
@@ -441,64 +456,63 @@ void TaskPlayer::Fall()
 		m_TaskTransform.SetPosition(KVector3{ vPos.x, vPos.z, vPos.z });
 		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), false, static_cast<int>(E_PlayerAnim::Run));
 		//m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), true, NULL);
-		m_eNowState = E_PlayerState::Normal;
+		m_eCurrentState = E_PlayerState::Normal;
 		fTime = 0;
 		iAnimCnt = 0;
 	}
-}
-
-void TaskPlayer::SetEvent()
-{
-	// 今いるレーンの中央へ戻る
-	float currentPos = m_TaskTransform.GetPosition().z;
-	if (currentPos != m_pLaneManager->GetLanePos(m_eNowLane))
-	{
-		SetPreviousLane(m_pLaneManager->GetCurrentLane(currentPos));
-	}
-	else
-	{
-		m_eNowState = E_PlayerState::Event;
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
-	}
-}
-
-void TaskPlayer::FinishEvent()
-{
-	m_eNowState = E_PlayerState::FinishEvent;
-}
-
-KVector2 TaskPlayer::GetCollisionPoint()
-{
-	// 当たり判定を行う、プレイヤーの右下足元の座標
-	KVector3 vSize = m_pCollider->GetSize();
-	KVector3 vCenter = m_pCollider->GetCenter();
-	KVector2 vPoint = KVector2{ vCenter.x + (vSize.x / 2.0f), vCenter.y - (vSize.y / 2.0f) };
-	return vPoint;
 }
 
 /***********************************************************************************
 	Damage
 *************************************************************************************/
 
-void TaskPlayer::Damage()
+void TaskPlayer::SetDamage()
 {
+	if (m_eCurrentState == E_PlayerState::Damage) return;
+
+	m_canChangeLane = false; // レーン移動一時停止
+	m_fAutoRunSpeed = RUN_SPEED_DAMAGE;
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Damage), false, static_cast<int>(E_PlayerAnim::Run));
-	m_eNowState = E_PlayerState::Damage;
+	m_eCurrentState = E_PlayerState::Damage;
 }
 
-void TaskPlayer::DamageMotion()
+void TaskPlayer::Damage()
 {
 	if (m_pAnim->IsFinishAnimation())
 	{
-		// 今いるレーンの中央へ戻る
-		float currentPos = m_TaskTransform.GetPosition().z;
-		if (currentPos != m_pLaneManager->GetLanePos(m_eNowLane))
+		m_fAutoRunSpeed = RUN_SPEED_NORMAL;
+		m_eCurrentState = E_PlayerState::Normal;
+
+		// レーン移動中なら再開
+		if (m_TaskTransform.GetPosition().z != m_pLaneManager->GetLanePos(m_eCurrentLane))
 		{
-			SetPreviousLane(m_pLaneManager->GetCurrentLane(currentPos));
-		}
-		else
-		{
-			m_eNowState = E_PlayerState::Normal;
+			m_canChangeLane = true;
 		}
 	}
+}
+
+/***********************************************************************************
+	QTE
+*************************************************************************************/
+
+
+void TaskPlayer::SetEvent()
+{
+	m_fAutoRunSpeed = RUN_SPEED_QTE;
+	m_eCurrentState = E_PlayerState::Event;
+
+	// レーン移動中なら今いるレーンの中央へ戻る
+	if (m_canChangeLane)
+	{
+		SetChangeLane(E_CourseChange::Here);
+	}
+	else
+	{
+		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
+	}
+}
+
+void TaskPlayer::FinishEvent()
+{
+	m_fAutoRunSpeed = RUN_SPEED_NORMAL;
 }

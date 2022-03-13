@@ -1,8 +1,9 @@
 #pragma once
 #include <list>
 #include "Definition.h"
-#include "QTEUIManager.h"
+#include "GameDirector.h"
 #include "TaskPlayer.h"
+#include "QTEUIManager.h"
 
 // 各トリック難度のキー入力数
 enum class E_TrikDifficulty
@@ -23,21 +24,22 @@ enum class E_QTEState
 class QTEController
 {
 public:
-	QTEController();
+	QTEController(GameDirector* pGameDirector);
 	~QTEController();
 
 	void Update();
-	void SetPlayerInstance(TaskPlayer* pPlayer);
-	void StartQTE(E_TrikDifficulty eTrikDifficulty);
-	void FinishQTE();
 
 private:
+	GameDirector*	m_pGameDirector;
 	TaskPlayer*		m_pPlayer;
 	QTEUIManager	m_QTEUIManager;
 	E_QTEState		m_eState;
 	std::list<int>	m_iInputKeyList;	// 決定したキーの番号リスト
 	float	m_fJudgeInvalidTime;
 	int		m_iCorrespondingKeys[KEY_USING_NUM];	// QTEで使用するキーを実際のキーコードに対応させる
+
+	void StartQTE(E_TrikDifficulty eTrikDifficulty);
+	void FinishQTE();
 
 	void ProceedQTE();
 	void SetKey(int iKeyNum);

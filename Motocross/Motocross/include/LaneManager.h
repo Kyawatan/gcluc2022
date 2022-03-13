@@ -11,8 +11,9 @@ enum class E_CourseLane
 
 enum class E_CourseChange
 {
-	Right = -1,	// 1つ右へ
-	Left = 1,	// 1つ左へ
+	Right = -1,	// 1つ右のレーン
+	Here = 0,	// 今のレーン
+	Left = 1,	// 1つ左のレーン
 };
 
 class LaneManager

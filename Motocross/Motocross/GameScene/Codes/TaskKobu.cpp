@@ -8,7 +8,7 @@ TaskKobu::TaskKobu(KVector3 vPos)
 	, m_pSprite(NULL)
 	, m_pCollisionLine(NULL)
 {
-	m_pSprite = new TexQuad(&m_TaskTransform, 500, 720, L"GameScene/Images/kobu.png", 1, 1);
+	m_pSprite = new TexQuad(&m_TaskTransform, 520, 720, L"GameScene/Images/kobu.png", 1, 1);
 	m_TaskTransform.SetPosition(vPos);
 }
 

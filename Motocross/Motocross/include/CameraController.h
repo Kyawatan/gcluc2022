@@ -14,5 +14,5 @@ public:
 	void FollowPlayer(KVector3 vMovement);
 
 private:
-	KawataCamera* m_pCamera;
+	KawataCamera*	m_pCamera;
 };

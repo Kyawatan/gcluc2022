@@ -2,9 +2,11 @@
 #define _USE_MATH_DEFINES // math.hをインクルードする前に記述
 #include <math.h>
 #include <random>
+#include "LaneManager.h"
+#include "CollisionDetector.h"
 #include "TaskBackGround.h"
 #include "TaskStealFrame.h"
-#include "TaskCorn.h"
+#include "TaskFlag.h"
 #include "TaskKobu.h"
 #include "TaskRock.h"
 
@@ -14,15 +16,15 @@
 #define ROCK_PERIOD			300		// 岩の間隔
 
 
-CourseGenerator::CourseGenerator(LaneManager* pLaneManager, CollisionDetector* pCollisionDetector)
-	: m_pLaneManager(pLaneManager)
-	, m_pCollisionDetector(pCollisionDetector)
-	, m_fDifference(m_pLaneManager->GetLaneInterval() * cos((1.0f / 5.0f) * M_PI))
+CourseGenerator::CourseGenerator(GameDirector* pGameDirector)
+	: m_pLaneManager(pGameDirector->GetLaneManagerInstance())
+	, m_pCollisionDetector(pGameDirector->GetCollisionDetectorInstance())
+	, m_fDifference(m_pLaneManager->GetLaneInterval() * cos((1.0f / 6.0f) * M_PI))
 	, m_fCourseLength(0)
 	, m_fLaneLeftEndPos(m_pLaneManager->GetLanePos(E_CourseLane::Left) + 50)
 	, m_fLaneRightEndPos(m_pLaneManager->GetLanePos(E_CourseLane::Right) - 50)
 {
-	InitCourse();
+
 }
 
 CourseGenerator::~CourseGenerator()
@@ -30,7 +32,7 @@ CourseGenerator::~CourseGenerator()
 
 }
 
-void CourseGenerator::InitCourse()
+void CourseGenerator::Init()
 {
 	// 背景生成
 	SetBackGround();
@@ -85,8 +87,8 @@ void CourseGenerator::SetGoal()
 	// ゴール位置を登録
 	KVector2 vStart = KVector2{ fGoalPos - m_fDifference, m_fLaneRightEndPos };
 	KVector2 vEnd = KVector2{ fGoalPos + m_fDifference, m_fLaneLeftEndPos };
-	COLLISION cs;
-	cs.eName = E_CollisionName::CourseGoal;
+	EVENT_COLLISION cs;
+	cs.eName = E_EventName::CourseGoal;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
@@ -104,24 +106,24 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	std::uniform_int_distribution<int> distr(0, iQTELevel - 1);
 	int fRand = (int)distr(eng); // 乱数生成
 
-	// 左右コーン生成
+	// 左右フラグ生成
 	const float fLaneEdgeOffset = 40; // レーン中央から端にずらす量
 	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left) + fLaneEdgeOffset;
 	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right) - fLaneEdgeOffset;
-	TaskBase* cornLeft = new TaskCorn(KVector3{ fPosX - iDistances[fRand] + m_fDifference, fLeftPosYZ, fLeftPosYZ });
-	TaskBase* cornRight = new TaskCorn(KVector3{ fPosX - iDistances[fRand] - m_fDifference, fRightPosYZ, fRightPosYZ });
+	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX - iDistances[fRand] + m_fDifference, fLeftPosYZ, fLeftPosYZ });
+	TaskBase* flagRight = new TaskFlag(KVector3{ fPosX - iDistances[fRand] - m_fDifference, fRightPosYZ, fRightPosYZ });
 	// コブ生成
 	TaskBase* kobuStart = new TaskKobu(KVector3{ fPosX, 0, 0 });
 	TaskBase* kobuEnd = new TaskKobu(KVector3{ fPosX + KOBU_INTERVAL, 0, 0 });
 
 	KVector2 vStart;
 	KVector2 vEnd;
-	COLLISION cs;
+	EVENT_COLLISION cs;
 
 	// QTE開始位置を登録
-	vStart = KVector2{ cornRight->m_TaskTransform.GetPosition().x, cornRight->m_TaskTransform.GetPosition().y };
-	vEnd = KVector2{ cornLeft->m_TaskTransform.GetPosition().x, cornLeft->m_TaskTransform.GetPosition().y };
-	cs.eName = E_CollisionName::StartQTE;
+	vStart = KVector2{ flagRight->m_TaskTransform.GetPosition().x, flagRight->m_TaskTransform.GetPosition().y };
+	vEnd = KVector2{ flagLeft->m_TaskTransform.GetPosition().x, flagLeft->m_TaskTransform.GetPosition().y };
+	cs.eName = E_EventName::StartQTE;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
@@ -129,10 +131,10 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	//dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
 
 	// QTE終了位置を登録
-	const float fAdjustment = 90; // コブの手前に調整
+	const float fAdjustment = 70; // コブの手前に調整
 	vStart = KVector2{ fPosX - fAdjustment - m_fDifference, m_fLaneRightEndPos };
 	vEnd = KVector2{ fPosX - fAdjustment + m_fDifference, m_fLaneLeftEndPos };
-	cs.eName = E_CollisionName::EndQTE;
+	cs.eName = E_EventName::EndQTE;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
@@ -144,24 +146,24 @@ void CourseGenerator::SetGate(float fPosX)
 {
 	float fLanePos = m_pLaneManager->GetLanePos(E_CourseLane::Center);
 
-	// 左右コーン生成
+	// 左右フラグ生成
 	const float fLaneEdgeOffset = 50; // レーン中央から端にずらす量
 
 	float fLeftPosYZ = fLanePos + fLaneEdgeOffset;
 	float fRightPosYZ = fLanePos - fLaneEdgeOffset;
-	TaskBase* cornLeft = new TaskCorn(KVector3{ fPosX + (m_fDifference * 0.35f), fLeftPosYZ, fLeftPosYZ });
-	TaskBase* cornRight = new TaskCorn(KVector3{ fPosX - (m_fDifference * 0.35f), fRightPosYZ, fRightPosYZ });
+	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX + (m_fDifference * 0.35f), fLeftPosYZ, fLeftPosYZ });
+	TaskBase* flagRight = new TaskFlag(KVector3{ fPosX - (m_fDifference * 0.35f), fRightPosYZ, fRightPosYZ });
 
 	// 加点位置を登録
-	KVector2 vStart = KVector2{ cornRight->m_TaskTransform.GetPosition().x, cornRight->m_TaskTransform.GetPosition().y };
-	KVector2 vEnd = KVector2{ cornLeft->m_TaskTransform.GetPosition().x, cornLeft->m_TaskTransform.GetPosition().y };
-	COLLISION cs;
-	cs.eName = E_CollisionName::ScoringGate;
+	KVector2 vStart = KVector2{ flagRight->m_TaskTransform.GetPosition().x, flagRight->m_TaskTransform.GetPosition().y };
+	KVector2 vEnd = KVector2{ flagLeft->m_TaskTransform.GetPosition().x, flagLeft->m_TaskTransform.GetPosition().y };
+	EVENT_COLLISION cs;
+	cs.eName = E_EventName::ScoringGate;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	//m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	dynamic_cast<TaskCorn*>(cornRight)->DrawCollisionLine(vStart, vEnd);
+	dynamic_cast<TaskFlag*>(flagRight)->DrawCollisionLine(vStart, vEnd);
 }
 
 void CourseGenerator::SetRock(float fPosX)
