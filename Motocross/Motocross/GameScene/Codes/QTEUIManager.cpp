@@ -14,6 +14,7 @@ QTEUIManager::~QTEUIManager()
 
 void QTEUIManager::SetInputKeyList(std::list<int> iInputKeyList)
 {
+	m_pTaskKeyList.clear();
 	// キーグラフィックを生成する
 	for (auto itr = iInputKeyList.begin(); itr != iInputKeyList.end();)
 	{
@@ -56,14 +57,14 @@ void QTEUIManager::SetNextInputKey()
 	m_pTaskKeyList.pop_front();
 }
 
-void QTEUIManager::DeleteInputKeyList()
+void QTEUIManager::FinishRemainingInputKey()
 {
+	// 残っているキーを終了させる
 	for (auto itr = m_pTaskKeyList.begin(); itr != m_pTaskKeyList.end();)
 	{
 		dynamic_cast<TaskKey*>(*itr)->FadeOut();
 		++itr;
 	}
-	m_pTaskKeyList.clear();
 }
 
 void QTEUIManager::SetFailure()

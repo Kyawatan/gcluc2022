@@ -63,7 +63,7 @@ void QTEController::FinishQTE()
 {
 	// c‚Á‚Ä‚¢‚éƒL[‚ğíœ
 	m_iInputKeyList.clear();
-	m_QTEUIManager.DeleteInputKeyList();
+	m_QTEUIManager.FinishRemainingInputKey();
 	m_onQTE = false;
 }
 
@@ -123,7 +123,7 @@ bool QTEController::JudgeKey()
 		{
 			m_iInputKeyList.clear();
 			m_QTEUIManager.SetFailure();
-			m_QTEUIManager.DeleteInputKeyList();
+			m_QTEUIManager.FinishRemainingInputKey();
 			return false;
 		}
 		++itr;

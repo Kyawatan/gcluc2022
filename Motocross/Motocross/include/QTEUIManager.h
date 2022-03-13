@@ -16,8 +16,8 @@ public:
 	// キーUI（Now, Next, NextNext）を次のキーに更新
 	void SetNextInputKey();
 
-	// リストに残っているキーをすべて削除
-	void DeleteInputKeyList();
+	// 残っているキーをすべて終了させる
+	void FinishRemainingInputKey();
 
 	// 入力ミスしたNowキーを赤くする
 	void SetFailure();

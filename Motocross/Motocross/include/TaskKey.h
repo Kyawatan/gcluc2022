@@ -39,9 +39,8 @@ public:
 	void FadeIn();
 	void FadeOut();
 	void SuccessEffect();
-	void TranslatetoNext();
-
 	void FailureEffect();
+	void TranslatetoNext();
 
 private:
 	QuadBase*		m_pSprite;
@@ -51,6 +50,7 @@ private:
 	float			m_fOpacity;
 	int				m_iKeyCode;
 	bool			m_isOnce;
+	bool			m_isFinish;
 
 	void (TaskKey::* m_pFunc)();				// 関数ポインタ
 	void SetFunc(void (TaskKey::* pFunc)());	// 実行する関数をセットする
