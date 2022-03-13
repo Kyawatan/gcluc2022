@@ -60,6 +60,7 @@ private:
 	void Init();
 	void SetAnimation();
 
+	bool CanAutoRun();
 	void AutoRun();
 	
 	void SetChangeLane(E_CourseChange eNextCourse);

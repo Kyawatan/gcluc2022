@@ -80,21 +80,19 @@ void GameDirector::Update()
 	// イベント発生
 	switch (eCollisionNum)
 	{
-	case static_cast<int>(E_EventName::StartQTE):
+	case static_cast<int>(E_EventName::QTEStart):
 		// QTE開始
-		//m_QTEController.StartQTE(E_TrikDifficulty::Intermediate);
-		m_eCurrentEventName = E_EventName::StartQTE;
+		m_eCurrentEventName = E_EventName::QTEStart;
 		break;
 
-	case static_cast<int>(E_EventName::EndQTE):
+	case static_cast<int>(E_EventName::QTEEnd):
 		// QTE終了
-		//m_QTEController.FinishQTE();
-		m_eCurrentEventName = E_EventName::EndQTE;
+		m_eCurrentEventName = E_EventName::QTEEnd;
 		break;
 
 	case static_cast<int>(E_EventName::CourseGoal):
 		// ゴール
-		m_eCurrentEventName = E_EventName::CourseGoal;
+		m_eCurrentGameState = E_GameState::AfterGoal;
 		break;
 
 	case static_cast<int>(E_EventName::ScoringGate):

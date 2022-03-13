@@ -33,7 +33,7 @@ int CollisionDetector::CollisionDetection(KVector2 vPoint)
 		{
 			// è’ìÀÇµÇƒÇ¢ÇÈ
 			E_EventName eName = (*itr).eName;
-			m_collisionList.pop_front();
+			m_collisionList.erase(itr);
 			return static_cast<int>(eName);
 		}
 		++itr;

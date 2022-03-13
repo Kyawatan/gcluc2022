@@ -93,7 +93,7 @@ void CourseGenerator::SetGoal()
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	//dynamic_cast<TaskStealFrame*>(frameRight)->DrawCollisionLine(vStart, vEnd);
+	dynamic_cast<TaskStealFrame*>(frameRight)->DrawCollisionLine(vStart, vEnd);
 }
 
 void CourseGenerator::SetJumpRamp(float fPosX)
@@ -123,7 +123,7 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	// QTE開始位置を登録
 	vStart = KVector2{ flagRight->m_TaskTransform.GetPosition().x, flagRight->m_TaskTransform.GetPosition().y };
 	vEnd = KVector2{ flagLeft->m_TaskTransform.GetPosition().x, flagLeft->m_TaskTransform.GetPosition().y };
-	cs.eName = E_EventName::StartQTE;
+	cs.eName = E_EventName::QTEStart;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
@@ -134,7 +134,7 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	const float fAdjustment = 70; // コブの手前に調整
 	vStart = KVector2{ fPosX - fAdjustment - m_fDifference, m_fLaneRightEndPos };
 	vEnd = KVector2{ fPosX - fAdjustment + m_fDifference, m_fLaneLeftEndPos };
-	cs.eName = E_EventName::EndQTE;
+	cs.eName = E_EventName::QTEEnd;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);

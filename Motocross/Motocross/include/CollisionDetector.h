@@ -11,8 +11,8 @@ enum class E_EventName
 {
 	None,
 	CourseGoal,
-	StartQTE,
-	EndQTE,
+	QTEStart,
+	QTEEnd,
 	ScoringGate,
 };
 

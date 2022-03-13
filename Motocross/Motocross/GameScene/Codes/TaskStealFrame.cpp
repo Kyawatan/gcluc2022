@@ -16,7 +16,8 @@ TaskStealFrame::TaskStealFrame(KVector3 vPos, E_FrameName eFrameName)
 		SetDrawNum(static_cast<int>(E_TaskDrawNum::Backward));
 		break;
 	case E_FrameName::Goal:
-		m_pSprite = new TexQuad(&m_TaskTransform, 300, 720, L"GameScene/Images/frame_right_goal.png", 1, 1);
+		//m_pSprite = new TexQuad(&m_TaskTransform, 300, 720, L"GameScene/Images/frame_right_goal.png", 1, 1);
+		m_pSprite = new TexQuad(&m_TaskTransform, 300, 720, L"GameScene/Images/frame_right_base.png", 1, 1);
 		break;
 	case E_FrameName::Base:
 		m_pSprite = new TexQuad(&m_TaskTransform, 300, 720, L"GameScene/Images/frame_right_base.png", 1, 1);

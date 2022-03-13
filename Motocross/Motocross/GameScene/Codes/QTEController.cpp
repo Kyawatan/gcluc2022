@@ -33,13 +33,13 @@ void QTEController::Update()
 {
 	switch (m_pGameDirector->GetCurrentEventName())
 	{
-	case E_EventName::StartQTE:
+	case E_EventName::QTEStart:
 		// QTEäJén
 		if (m_pPlayer == NULL) m_pPlayer = m_pGameDirector->GetPlayerInstance();
 		StartQTE(E_TrikDifficulty::Beginner);
 		break;
 
-	case E_EventName::EndQTE:
+	case E_EventName::QTEEnd:
 		// QTEèIóπ
 		FinishQTE();
 		break;
