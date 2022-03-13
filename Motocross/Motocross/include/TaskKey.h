@@ -38,7 +38,6 @@ public:
 	void FadeIn(E_KeyPossition eKeyPos);
 	void FadeOut();
 	void KeyDownEffect(bool isSuccess);
-	void FailureEffect();
 	void TranslatetoNext();
 
 private:

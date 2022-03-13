@@ -27,10 +27,10 @@ public:
 	GameDirector();
 	~GameDirector();
 
-	E_GameState const GetCurrentGameState();
-	E_EventName const GetCurrentEventName();
-
-	E_TrikDifficulty const GetQTEDifficulty();
+	const E_GameState GetCurrentGameState();
+	const E_EventName GetCurrentEventName();
+	const float GetDepthCorrection();
+	const E_TrikDifficulty GetQTEDifficulty();
 
 	TaskPlayer* GetPlayerInstance();
 	LaneManager* GetLaneManagerInstance();
@@ -40,10 +40,11 @@ private:
 	E_GameState	m_eCurrentGameState;
 	E_EventName	m_eCurrentEventName;
 	LaneManager			m_LaneManager;
-	CollisionDetector	m_CollisionDetector;
-	TaskPlayer* m_pPlayer;
+	CollisionDetector	m_CollisionDetector; // ÉåÅ[ÉìÇÃâúçsï‚ê≥
+	TaskPlayer*			m_pPlayer;
 
-	E_TrikDifficulty m_QTEDifficulty;
+	E_TrikDifficulty	m_QTEDifficulty;
+	const float			m_fDepthCorrection;
 
 	void SetQTEDifficulty();
 

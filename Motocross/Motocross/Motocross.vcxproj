@@ -161,6 +161,7 @@
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
     <ClCompile Include="GameScene\Codes\TaskRock.cpp" />
     <ClCompile Include="GameScene\Codes\TaskStealFrame.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskTrikNavi.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
     <ClCompile Include="Main\WinMain.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="include\TaskPlayer.h" />
     <ClInclude Include="include\TaskRock.h" />
     <ClInclude Include="include\TaskStealFrame.h" />
+    <ClInclude Include="include\TaskTrikNavi.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

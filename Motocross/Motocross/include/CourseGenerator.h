@@ -12,9 +12,10 @@ public:
 	void Init();
 
 private:
+	GameDirector*		m_pGameDirector;
 	LaneManager*		m_pLaneManager;
 	CollisionDetector*	m_pCollisionDetector;
-	const float			m_fDifference; // Zé≤ÇÃç∑ï™
+	const float			m_fDepthCorrection; // âúçsï‚ê≥
 	float				m_fCourseLength;
 	float				m_fLaneLeftEndPos;
 	float				m_fLaneRightEndPos;

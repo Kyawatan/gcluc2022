@@ -20,7 +20,6 @@ TaskKey::TaskKey(int iKeyCode)
 {
 	// スプライト作成
 	m_pSprite = new ScrapTexQuad(&m_TaskTransform);
-	//m_pSprite->SetOpacity(0); // 透明
 	// テクスチャをセット
 	TEXTURE_SCRAP_INFO texInfo;
 	texInfo.iTipWidth = 256;

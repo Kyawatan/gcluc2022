@@ -9,6 +9,7 @@
 #include "TaskFlag.h"
 #include "TaskKobu.h"
 #include "TaskRock.h"
+#include "TaskTrikNavi.h"
 
 #define JUMP_RAMP_NUM		3		// コース内のジャンプ台の数
 #define JUMP_RAMP_PERIOD	4000	// ジャンプ台の間隔
@@ -17,9 +18,10 @@
 
 
 CourseGenerator::CourseGenerator(GameDirector* pGameDirector)
-	: m_pLaneManager(pGameDirector->GetLaneManagerInstance())
-	, m_pCollisionDetector(pGameDirector->GetCollisionDetectorInstance())
-	, m_fDifference(m_pLaneManager->GetLaneInterval() * cos((1.0f / 6.0f) * M_PI))
+	: m_pGameDirector(pGameDirector)
+	, m_pLaneManager(m_pGameDirector->GetLaneManagerInstance())
+	, m_pCollisionDetector(m_pGameDirector->GetCollisionDetectorInstance())
+	, m_fDepthCorrection(m_pGameDirector->GetDepthCorrection())
 	, m_fCourseLength(0)
 	, m_fLaneLeftEndPos(m_pLaneManager->GetLanePos(E_CourseLane::Left) + 50)
 	, m_fLaneRightEndPos(m_pLaneManager->GetLanePos(E_CourseLane::Right) - 50)
@@ -85,8 +87,8 @@ void CourseGenerator::SetGoal()
 	TaskBase* frameRight = new TaskStealFrame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Goal);
 
 	// ゴール位置を登録
-	KVector2 vStart = KVector2{ fGoalPos - m_fDifference, m_fLaneRightEndPos };
-	KVector2 vEnd = KVector2{ fGoalPos + m_fDifference, m_fLaneLeftEndPos };
+	KVector2 vStart = KVector2{ fGoalPos - m_fDepthCorrection, m_fLaneRightEndPos };
+	KVector2 vEnd = KVector2{ fGoalPos + m_fDepthCorrection, m_fLaneLeftEndPos };
 	EVENT_COLLISION cs;
 	cs.eName = E_EventName::CourseGoal;
 	cs.vStart = vStart;
@@ -106,12 +108,19 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 	std::uniform_int_distribution<int> distr(0, iQTELevel - 1);
 	int fRand = (int)distr(eng); // 乱数生成
 
+	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left);
+	float fCentertPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Center);
+	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right);
+	// トリック難度ふきだし生成
+	const float fTrikDistance = fPosX - iDistances[fRand] + 80;
+	TaskBase* RightTrikNavi = new TaskTrikNavi(m_pGameDirector, 0, KVector3{ fTrikDistance - m_fDepthCorrection, fRightPosYZ, fRightPosYZ });
+	TaskBase* CenterTrikNavi = new TaskTrikNavi(m_pGameDirector, 1, KVector3{ fTrikDistance, fCentertPosYZ, fCentertPosYZ });
+	TaskBase* LeftTrikNavi = new TaskTrikNavi(m_pGameDirector, 2, KVector3{ fTrikDistance + m_fDepthCorrection, fLeftPosYZ, fLeftPosYZ });
 	// 左右フラグ生成
+	const float fCornDistance = fPosX - iDistances[fRand]; // コブからの距離
 	const float fLaneEdgeOffset = 40; // レーン中央から端にずらす量
-	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left) + fLaneEdgeOffset;
-	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right) - fLaneEdgeOffset;
-	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX - iDistances[fRand] + m_fDifference, fLeftPosYZ, fLeftPosYZ });
-	TaskBase* flagRight = new TaskFlag(KVector3{ fPosX - iDistances[fRand] - m_fDifference, fRightPosYZ, fRightPosYZ });
+	TaskBase* flagLeft = new TaskFlag(KVector3{ fCornDistance + m_fDepthCorrection, fLeftPosYZ + fLaneEdgeOffset, fLeftPosYZ + fLaneEdgeOffset });
+	TaskBase* flagRight = new TaskFlag(KVector3{ fCornDistance - m_fDepthCorrection, fRightPosYZ - fLaneEdgeOffset, fRightPosYZ - fLaneEdgeOffset });
 	// コブ生成
 	TaskBase* kobuStart = new TaskKobu(KVector3{ fPosX, 0, 0 });
 	TaskBase* kobuEnd = new TaskKobu(KVector3{ fPosX + KOBU_INTERVAL, 0, 0 });
@@ -132,8 +141,8 @@ void CourseGenerator::SetJumpRamp(float fPosX)
 
 	// QTE終了位置を登録
 	const float fAdjustment = 70; // コブの手前に調整
-	vStart = KVector2{ fPosX - fAdjustment - m_fDifference, m_fLaneRightEndPos };
-	vEnd = KVector2{ fPosX - fAdjustment + m_fDifference, m_fLaneLeftEndPos };
+	vStart = KVector2{ fPosX - fAdjustment - m_fDepthCorrection, m_fLaneRightEndPos };
+	vEnd = KVector2{ fPosX - fAdjustment + m_fDepthCorrection, m_fLaneLeftEndPos };
 	cs.eName = E_EventName::QTEEnd;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
@@ -151,8 +160,8 @@ void CourseGenerator::SetGate(float fPosX)
 
 	float fLeftPosYZ = fLanePos + fLaneEdgeOffset;
 	float fRightPosYZ = fLanePos - fLaneEdgeOffset;
-	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX + (m_fDifference * 0.35f), fLeftPosYZ, fLeftPosYZ });
-	TaskBase* flagRight = new TaskFlag(KVector3{ fPosX - (m_fDifference * 0.35f), fRightPosYZ, fRightPosYZ });
+	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX + (m_fDepthCorrection * 0.35f), fLeftPosYZ, fLeftPosYZ });
+	TaskBase* flagRight = new TaskFlag(KVector3{ fPosX - (m_fDepthCorrection * 0.35f), fRightPosYZ, fRightPosYZ });
 
 	// 加点位置を登録
 	KVector2 vStart = KVector2{ flagRight->m_TaskTransform.GetPosition().x, flagRight->m_TaskTransform.GetPosition().y };
@@ -182,11 +191,11 @@ void CourseGenerator::SetRock(float fPosX)
 		float fPosYZ = m_pLaneManager->GetLanePos(static_cast<E_CourseLane>((fRandLane + i) % 3));
 		if (m_pLaneManager->GetCurrentLane(fPosYZ) == E_CourseLane::Left)
 		{
-			TaskBase* rock = new TaskRock(KVector3{ fPosX + m_fDifference, fPosYZ, fPosYZ });
+			TaskBase* rock = new TaskRock(KVector3{ fPosX + m_fDepthCorrection, fPosYZ, fPosYZ });
 		}
 		else if (m_pLaneManager->GetCurrentLane(fPosYZ) == E_CourseLane::Right)
 		{
-			TaskBase* rock = new TaskRock(KVector3{ fPosX - m_fDifference, fPosYZ, fPosYZ });
+			TaskBase* rock = new TaskRock(KVector3{ fPosX - m_fDepthCorrection, fPosYZ, fPosYZ });
 		}
 		else
 		{

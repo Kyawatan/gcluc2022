@@ -1,4 +1,6 @@
 #include "GameDirector.h"
+#define _USE_MATH_DEFINES // math.hインクルード前に記述必要
+#include <math.h>
 #include <assert.h>
 #include "TaskPlayer.h"
 #include "LaneManager.h"
@@ -12,6 +14,7 @@ GameDirector::GameDirector()
 	, m_CollisionDetector()
 	, m_pPlayer(NULL)
 	, m_QTEDifficulty()
+	, m_fDepthCorrection(m_LaneManager.GetLaneInterval()* cos((1.0f / 6.0f)* M_PI))
 {
 
 }
@@ -31,6 +34,12 @@ const E_EventName GameDirector::GetCurrentEventName()
 	return m_eCurrentEventName;
 }
 
+const float GameDirector::GetDepthCorrection()
+{
+	return m_fDepthCorrection;
+}
+
+
 TaskPlayer* GameDirector::GetPlayerInstance()
 {
 	return m_pPlayer;
@@ -48,7 +57,7 @@ CollisionDetector* GameDirector::GetCollisionDetectorInstance()
 	return &m_CollisionDetector;
 }
 
-E_TrikDifficulty const GameDirector::GetQTEDifficulty()
+const E_TrikDifficulty GameDirector::GetQTEDifficulty()
 {
 	return m_QTEDifficulty;
 }
