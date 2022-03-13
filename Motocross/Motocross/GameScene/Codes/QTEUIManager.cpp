@@ -35,7 +35,7 @@ void QTEUIManager::SetNextInputKey()
 {
 	// NowƒL[‚ğíœ
 	auto itr = m_pTaskKeyList.begin();
-	dynamic_cast<TaskKey*>(*itr)->SuccessEffect();
+	dynamic_cast<TaskKey*>(*itr)->KeyDownEffect(true);
 	// Next‚ª‚ ‚ê‚Înow‚ÉˆÚ“®
 	if (2 <= m_pTaskKeyList.size())
 	{
@@ -70,5 +70,5 @@ void QTEUIManager::FinishRemainingInputKey()
 void QTEUIManager::SetFailure()
 {
 	auto itr = m_pTaskKeyList.begin();
-	dynamic_cast<TaskKey*>(*itr)->FailureEffect();
+	dynamic_cast<TaskKey*>(*itr)->KeyDownEffect(false);
 }

@@ -136,16 +136,24 @@ void TaskKey::FadeOut()
 	}
 }
 
-void TaskKey::SuccessEffect()
+void TaskKey::KeyDownEffect(bool isSuccess)
 {
 	/*****************************************************************************
 		äJén
 	*****************************************************************************/
 	if (m_isOnce)
 	{
-		this->SetFunc(&TaskKey::SuccessEffect);
+		// ÉLÅ[ì¸óÕÇ…é∏îsÇµÇƒÇ¢ÇΩÇÁê‘Ç≠Ç∑ÇÈ
+		if (!isSuccess)
+		{
+			m_pSprite->SetDiffuse(KVector3{ 1, 0.5, 0 });
+		}
+		this->SetFunc(&TaskKey::KeyDownEffect);
 	}
+}
 
+void TaskKey::KeyDownEffect()
+{
 	/*****************************************************************************
 		åJÇËï‘Çµ
 	*****************************************************************************/
@@ -166,11 +174,6 @@ void TaskKey::SuccessEffect()
 		SetTaskStateDying();
 		ExitFunc();
 	}
-}
-
-void TaskKey::FailureEffect()
-{
-	m_pSprite->SetDiffuse(KVector3{ 1, 0.5, 0 }); // ê‘Ç≠Ç∑ÇÈ
 }
 
 /*****************************************************************************

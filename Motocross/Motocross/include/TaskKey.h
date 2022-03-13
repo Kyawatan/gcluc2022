@@ -36,9 +36,8 @@ public:
 	void Draw() override;
 
 	void FadeIn(E_KeyPossition eKeyPos);
-	void FadeIn();
 	void FadeOut();
-	void SuccessEffect();
+	void KeyDownEffect(bool isSuccess);
 	void FailureEffect();
 	void TranslatetoNext();
 
@@ -56,5 +55,7 @@ private:
 	void SetFunc(void (TaskKey::* pFunc)());	// 実行する関数をセットする
 	void ExitFunc();							// 処理が終了した関数から抜ける
 
+	void FadeIn();
+	void KeyDownEffect();
 	KVector3 SetPosition(E_KeyPossition eKeyPos);
 };
