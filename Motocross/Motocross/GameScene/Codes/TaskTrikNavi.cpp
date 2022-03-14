@@ -4,11 +4,12 @@
 #include "ScrapTexQuad.h"
 
 
-TaskTrikNavi::TaskTrikNavi(GameDirector* pGameDirector, int iTrikNum, KVector3 vPos)
+TaskTrikNavi::TaskTrikNavi(GameDirector* pGameDirector, int iIndex, E_TrikDifficulty eDifficulty, KVector3 vPos)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::UI), NULL)
 	, m_pSprite(NULL)
 	, m_pGameDirector(pGameDirector)
-	, m_iTrikNum(iTrikNum)
+	, m_iTrikNum(static_cast<int>(eDifficulty))
+	, m_iJumpRumpIndex(iIndex)
 	, m_fOpacity(1)
 	, m_isOnce(true)
 	, m_isFinish(true)
@@ -35,12 +36,14 @@ TaskTrikNavi::~TaskTrikNavi()
 
 void TaskTrikNavi::Update()
 {
-	switch (m_pGameDirector->GetCurrentEventName())
+	// 自分が属するジャンプ台の番でなければreturn
+	if (m_pGameDirector->GetCurrentJumpRump() != m_iJumpRumpIndex) return;
+
+	if (m_pGameDirector->GetCurrentEventName() == E_EventName::QTEStart)
 	{
-	case E_EventName::QTEStart:
 		// 自分の難度のレーンか否かでエフェクトを変更
 		int eDifficulty = static_cast<int>(m_pGameDirector->GetQTEDifficulty());
-		if (eDifficulty == m_iTrikNum + 2)
+		if (eDifficulty == m_iTrikNum)
 		{
 			FadeOut(true);
 		}
@@ -48,16 +51,14 @@ void TaskTrikNavi::Update()
 		{
 			FadeOut(false);
 		}
-		break;
 	}
-
 	// 現在のエフェクトを実行
 	if (m_pFunc != NULL) (this->*m_pFunc)();
 }
 
 void TaskTrikNavi::Draw()
 {
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTrikNum);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTrikNum - 2);
 }
 
 void TaskTrikNavi::Emphasize()

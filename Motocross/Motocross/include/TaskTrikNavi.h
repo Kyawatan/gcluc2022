@@ -6,7 +6,7 @@
 class TaskTrikNavi : public TaskBase
 {
 public:
-	TaskTrikNavi(GameDirector* pGameDirector, int iTrikNum, KVector3 vPos);
+	TaskTrikNavi(GameDirector* pGameDirector, int iIndex, E_TrikDifficulty eDifficulty, KVector3 vPos);
 	~TaskTrikNavi();
 
 	void Update() override;
@@ -16,6 +16,7 @@ private:
 	QuadBase*	m_pSprite;
 	GameDirector* m_pGameDirector;
 	int			m_iTrikNum;
+	int			m_iJumpRumpIndex; // 何番目のジャンプ台に属しているか
 	float		m_fOpacity;
 	bool		m_isOnce;
 	bool		m_isFinish;
@@ -24,7 +25,7 @@ private:
 
 	void (TaskTrikNavi::* m_pFunc)();				// 関数ポインタ
 	void SetFunc(void (TaskTrikNavi::* pFunc)());	// 実行する関数をセットする
-	void ExitFunc();							// 処理が終了した関数から抜ける
+	void ExitFunc();								// 処理が終了した関数から抜ける
 
 	void Emphasize();
 	void FadeOut(bool isSelect);

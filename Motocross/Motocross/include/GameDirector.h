@@ -3,6 +3,8 @@
 #include "LaneManager.h"
 #include "CollisionDetector.h"
 
+#define JUMP_RAMP_NUM 3	// コース内のジャンプ台の数
+
 class TaskPlayer;
 class TaskWindowEffect;
 
@@ -20,6 +22,14 @@ enum class E_TrikDifficulty
 	Advanced,		// 上級
 };
 
+struct QTE_INFORMATION
+{
+	int					iIndex;
+	E_TrikDifficulty	eLeftDifficulty;
+	E_TrikDifficulty	eCenterDifficulty;
+	E_TrikDifficulty	eRightDifficulty;
+};
+
 class GameDirector
 {
 public:
@@ -28,6 +38,8 @@ public:
 	GameDirector();
 	~GameDirector();
 
+	void SetQTEInformation(QTE_INFORMATION info);
+	const int GetCurrentJumpRump();
 	const E_GameState GetCurrentGameState();
 	const E_EventName GetCurrentEventName();
 	const float GetDepthCorrection();
@@ -46,7 +58,9 @@ private:
 	TaskPlayer*			m_pPlayer;
 	TaskWindowEffect*	m_pWindowEffect;
 
-	E_TrikDifficulty	m_QTEDifficulty;
+	E_TrikDifficulty	m_eQTEDifficulty;
+	QTE_INFORMATION		m_QTEInfo[JUMP_RAMP_NUM];
+	int					m_iCurrentJumpRump;
 	const float			m_fDepthCorrection;
 
 	void SetQTEDifficulty();

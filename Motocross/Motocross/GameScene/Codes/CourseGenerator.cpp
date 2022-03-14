@@ -11,7 +11,6 @@
 #include "TaskRock.h"
 #include "TaskTrikNavi.h"
 
-#define JUMP_RAMP_NUM		3		// コース内のジャンプ台の数
 #define JUMP_RAMP_PERIOD	4000	// ジャンプ台の間隔
 #define KOBU_INTERVAL		550		// ジャンプ始めとジャンプ終わりのコブの間隔
 #define ROCK_PERIOD			300		// 岩の間隔
@@ -45,7 +44,7 @@ void CourseGenerator::Init()
 	// ジャンプ台生成（4000, 8000, 12000）
 	for (int i = 0; i < JUMP_RAMP_NUM; i++)
 	{
-		SetJumpRamp(JUMP_RAMP_PERIOD * (i + 1));
+		SetJumpRamp(i, JUMP_RAMP_PERIOD * (i + 1));
 	}
 	// ジャンプ台のない場所に各オブジェクトを生成（1000～3000、5000～7000、9000～11000）
 	const int iStartPos = 1000;
@@ -98,26 +97,37 @@ void CourseGenerator::SetGoal()
 	dynamic_cast<TaskStealFrame*>(frameRight)->DrawCollisionLine(vStart, vEnd);
 }
 
-void CourseGenerator::SetJumpRamp(float fPosX)
+void CourseGenerator::SetJumpRamp(int iIndex, float fPosX)
 {
 	// コーンとコブの距離（4段階、QTEレベル）をランダムで決定
 	const int iQTELevel = 4;
 	const int iDistances[iQTELevel] = { 300, 400, 500, 600 }; // 3秒、4秒、5秒、6秒
 	std::random_device rd;
 	std::default_random_engine eng(rd());
-	std::uniform_int_distribution<int> distr(0, iQTELevel - 1);
-	int fRand = (int)distr(eng); // 乱数生成
+	std::uniform_int_distribution<int> distrDistance(0, iQTELevel - 1);
+	int fDistanceRand = (int)distrDistance(eng); // 乱数生成
+
+	// 各レーンのQTE難度をランダムで決定
+	std::uniform_int_distribution<int> distrDifficulty(static_cast<int>(E_TrikDifficulty::Beginner), static_cast<int>(E_TrikDifficulty::Advanced));
+	//int fDifficultyRand = (int)distrDifficulty(eng);
+	int fDifficultyRand = 2;
+	QTE_INFORMATION info;
+	info.iIndex = iIndex;
+	info.eLeftDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand);
+	info.eCenterDifficulty = static_cast<E_TrikDifficulty>((fDifficultyRand + 1));
+	info.eRightDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand + 2);
+	m_pGameDirector->SetQTEInformation(info);
 
 	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left);
 	float fCentertPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Center);
 	float fRightPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Right);
 	// トリック難度ふきだし生成
-	const float fTrikDistance = fPosX - iDistances[fRand] + 80;
-	TaskBase* RightTrikNavi = new TaskTrikNavi(m_pGameDirector, 0, KVector3{ fTrikDistance - m_fDepthCorrection, fRightPosYZ, fRightPosYZ });
-	TaskBase* CenterTrikNavi = new TaskTrikNavi(m_pGameDirector, 1, KVector3{ fTrikDistance, fCentertPosYZ, fCentertPosYZ });
-	TaskBase* LeftTrikNavi = new TaskTrikNavi(m_pGameDirector, 2, KVector3{ fTrikDistance + m_fDepthCorrection, fLeftPosYZ, fLeftPosYZ });
+	const float fTrikDistance = fPosX - iDistances[fDistanceRand] + 80; // コブからの距離
+	TaskBase* RightTrikNavi = new TaskTrikNavi(m_pGameDirector, iIndex, info.eRightDifficulty, KVector3{ fTrikDistance - m_fDepthCorrection, fRightPosYZ, fRightPosYZ });
+	TaskBase* CenterTrikNavi = new TaskTrikNavi(m_pGameDirector, iIndex, info.eCenterDifficulty, KVector3{ fTrikDistance, fCentertPosYZ, fCentertPosYZ });
+	TaskBase* LeftTrikNavi = new TaskTrikNavi(m_pGameDirector, iIndex, info.eLeftDifficulty, KVector3{ fTrikDistance + m_fDepthCorrection, fLeftPosYZ, fLeftPosYZ });
 	// 左右フラグ生成
-	const float fCornDistance = fPosX - iDistances[fRand]; // コブからの距離
+	const float fCornDistance = fPosX - iDistances[fDistanceRand]; // コブからの距離
 	const float fLaneEdgeOffset = 40; // レーン中央から端にずらす量
 	TaskBase* flagLeft = new TaskFlag(KVector3{ fCornDistance + m_fDepthCorrection, fLeftPosYZ + fLaneEdgeOffset, fLeftPosYZ + fLaneEdgeOffset });
 	TaskBase* flagRight = new TaskFlag(KVector3{ fCornDistance - m_fDepthCorrection, fRightPosYZ - fLaneEdgeOffset, fRightPosYZ - fLaneEdgeOffset });

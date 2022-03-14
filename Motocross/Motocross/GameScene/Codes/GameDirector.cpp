@@ -15,7 +15,9 @@ GameDirector::GameDirector()
 	, m_CollisionDetector()
 	, m_pPlayer(NULL)
 	, m_pWindowEffect(NULL)
-	, m_QTEDifficulty()
+	, m_eQTEDifficulty()
+	, m_QTEInfo()
+	, m_iCurrentJumpRump(0)
 	, m_fDepthCorrection(m_LaneManager.GetLaneInterval()* cos((1.0f / 6.0f)* M_PI))
 {
 
@@ -24,6 +26,16 @@ GameDirector::GameDirector()
 GameDirector::~GameDirector()
 {
 
+}
+
+void GameDirector::SetQTEInformation(QTE_INFORMATION info)
+{
+	m_QTEInfo[info.iIndex] = info;
+}
+
+const int GameDirector::GetCurrentJumpRump()
+{
+	return m_iCurrentJumpRump;
 }
 
 const E_GameState GameDirector::GetCurrentGameState()
@@ -40,8 +52,8 @@ const float GameDirector::GetDepthCorrection()
 {
 	return m_fDepthCorrection;
 }
-
-
+//
+//
 TaskPlayer* GameDirector::GetPlayerInstance()
 {
 	return m_pPlayer;
@@ -63,26 +75,28 @@ CollisionDetector* GameDirector::GetCollisionDetectorInstance()
 	assert(&m_CollisionDetector != NULL);
 	return &m_CollisionDetector;
 }
-
+//
+//
 const E_TrikDifficulty GameDirector::GetQTEDifficulty()
 {
-	return m_QTEDifficulty;
+	return m_eQTEDifficulty;
 }
 
 void GameDirector::SetQTEDifficulty()
 {
+	// プレイヤーの現在地点によって実行するQTE難度を決定
 	switch (m_LaneManager.GetCurrentLane(m_pPlayer->m_TaskTransform.GetPosition().z))
 	{
 	case E_CourseLane::Right:
-		m_QTEDifficulty = E_TrikDifficulty::Beginner;
+		m_eQTEDifficulty = m_QTEInfo[m_iCurrentJumpRump].eRightDifficulty;
 		break;
 
 	case E_CourseLane::Center:
-		m_QTEDifficulty = E_TrikDifficulty::Intermediate;
+		m_eQTEDifficulty = m_QTEInfo[m_iCurrentJumpRump].eCenterDifficulty;
 		break;
 
 	case E_CourseLane::Left:
-		m_QTEDifficulty = E_TrikDifficulty::Advanced;
+		m_eQTEDifficulty = m_QTEInfo[m_iCurrentJumpRump].eLeftDifficulty;
 		break;
 	}
 }
@@ -130,6 +144,7 @@ void GameDirector::Update()
 
 	case static_cast<int>(E_EventName::QTEEnd):
 		// QTE終了
+		m_iCurrentJumpRump++;
 		m_eCurrentEventName = E_EventName::QTEEnd;
 		break;
 

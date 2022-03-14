@@ -24,7 +24,7 @@ private:
 	void SetStart();
 	void SetGoal();
 
-	void SetJumpRamp(float fPosX);
+	void SetJumpRamp(int iIndex, float fPosX);
 	void SetGate(float fPosX);
 	void SetRock(float fPosX);
 };
