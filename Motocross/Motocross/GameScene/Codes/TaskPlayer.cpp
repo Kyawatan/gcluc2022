@@ -37,14 +37,16 @@ enum class E_PlayerAnim
 };
 
 
-TaskPlayer::TaskPlayer(GameDirector* pGameDirector)
+TaskPlayer::TaskPlayer(GameDirector* pGameDirector, ScoreController* pScoreController)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::PlayerDefault), static_cast<int>(E_TaskLayerNum::Player))
 	, m_pGameDirector(pGameDirector)
+	, m_pScoreController(pScoreController)
 	, m_pSprite(NULL)
 	, m_pAnim(NULL)
 	, m_iAnimTexIndex()
 	, m_eCurrentState(E_PlayerState::Normal)
 	, m_iTrikNum(0)
+	, m_eTrikPoint()
 	, m_pLaneManager(pGameDirector->GetLaneManagerInstance())
 	, m_fAutoRunSpeed(RUN_SPEED_NORMAL)
 	, m_eCurrentLane(E_CourseLane::Center)
@@ -394,6 +396,11 @@ void TaskPlayer::SetJump()
 	m_eCurrentState = E_PlayerState::Jump;
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false,
 		static_cast<int>(E_PlayerAnim::JumpRise1) + TRIK_ANIM_INDEX(m_iTrikNum));
+	// トリックを決められていたら得点
+	if (m_iTrikNum != 0)
+	{
+		m_pScoreController->AddPoint(m_eTrikPoint);
+	}
 }
 
 void TaskPlayer::Jump()
@@ -460,6 +467,7 @@ void TaskPlayer::SetDamage()
 	m_fAutoRunSpeed = RUN_SPEED_DAMAGE;
 	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Damage), false, static_cast<int>(E_PlayerAnim::Run));
 	m_eCurrentState = E_PlayerState::Damage;
+	m_pScoreController->AddPoint(E_Point::DamageRock); // 減点
 }
 
 void TaskPlayer::Damage()
@@ -505,14 +513,17 @@ void TaskPlayer::FinishEvent(bool isSuccessful)
 		{
 		case E_TrikDifficulty::Beginner:
 			m_iTrikNum = static_cast<int>(E_TrikName::Beginner1);
+			m_eTrikPoint = E_Point::TrikBiginner;
 			break;
 
 		case E_TrikDifficulty::Intermediate:
 			m_iTrikNum = static_cast<int>(E_TrikName::Intermediate1);
+			m_eTrikPoint = E_Point::TrikIntermediate;
 			break;
 		
 		case E_TrikDifficulty::Advanced:
 			m_iTrikNum = static_cast<int>(E_TrikName::Advanced1);
+			m_eTrikPoint = E_Point::TrikAdvanced;
 			break;
 		}
 	}

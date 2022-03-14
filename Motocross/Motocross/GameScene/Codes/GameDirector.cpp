@@ -111,25 +111,6 @@ void GameDirector::SetInstance(TaskPlayer* pPlayer, TaskWindowEffect* pWindowEff
 
 void GameDirector::Update()
 {
-	switch (m_eCurrentGameState)
-	{
-	case E_GameState::BeforeStart:
-		// SPACEキー押下でプレイ中に
-		if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
-		{
-			m_eCurrentGameState = E_GameState::Playing;
-		}
-		break;
-
-	case E_GameState::Playing:
-
-		break;
-
-	case E_GameState::AfterGoal:
-
-		break;
-	}
-
 	// プレイヤーとイベント発生ポイントの当たり判定
 	KVector2 vPlayerPoint = m_pPlayer->GetCollisionPoint();
 	int eCollisionNum = m_CollisionDetector.CollisionDetection(vPlayerPoint);

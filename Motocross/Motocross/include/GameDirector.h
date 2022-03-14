@@ -8,6 +8,7 @@
 class TaskPlayer;
 class TaskWindowEffect;
 
+// ゲーム状況
 enum class E_GameState
 {
 	BeforeStart,
@@ -15,6 +16,7 @@ enum class E_GameState
 	AfterGoal,
 };
 
+// トリック難度
 enum class E_TrikDifficulty
 {
 	Beginner,		// 初級
@@ -23,6 +25,7 @@ enum class E_TrikDifficulty
 	Num,
 };
 
+// コース生成時、トリック難度を設定するときの情報構造体
 struct QTE_INFORMATION
 {
 	int					iIndex;

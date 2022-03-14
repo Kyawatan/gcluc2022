@@ -2,6 +2,7 @@
 #include "QuadBase.h"
 #include "Definition.h"
 #include "GameDirector.h"
+#include "ScoreController.h"
 
 enum class E_PlayerState
 {
@@ -24,7 +25,7 @@ enum class E_TrikName
 class TaskPlayer : public TaskBase
 {
 public:
-	TaskPlayer(GameDirector* pGameDirector);
+	TaskPlayer(GameDirector* pGameDirector, ScoreController* pScoreController);
 	~TaskPlayer();
 
 	void Update() override;
@@ -38,11 +39,13 @@ public:
 
 private:
 	GameDirector*		m_pGameDirector;
+	ScoreController*	m_pScoreController;
 	QuadBase*			m_pSprite;
 	KawataAnimation*	m_pAnim;
 	int					m_iAnimTexIndex[2];
 	E_PlayerState		m_eCurrentState;
 	int					m_iTrikNum;
+	E_Point				m_eTrikPoint;
 
 	float			m_fAutoRunSpeed;
 
