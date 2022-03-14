@@ -16,8 +16,8 @@
 #define JUMP_VY0			367.75f
 #define GRAVITY				-294.0f
 
-#define JUMP_NUM			18			// player_jump.pngのチップの開始番号
-#define TRIK_ANIM_INDEX(i)	5 * (i - 1)	// 各トリックアニメーションのインデックス
+#define JUMP_NUM			18		// player_jump.pngのチップの開始番号
+#define TRIK_ANIM_INDEX(i)	5 * i	// 各トリックアニメーションのインデックス
 
 enum class E_PlayerAnim
 {
@@ -398,7 +398,7 @@ void TaskPlayer::SetJump()
 
 void TaskPlayer::Jump()
 {
-	assert(0 < m_iTrikNum);
+	assert(0 <= m_iTrikNum && m_iTrikNum < static_cast<int>(E_TrikName::Num));
 
 	// ジャンプは約2.5秒, 高さ約230px
 	const float fMaxHeight = 230.0f;

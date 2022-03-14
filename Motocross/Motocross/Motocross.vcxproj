@@ -154,6 +154,7 @@
     <ClCompile Include="GameScene\Codes\QTEController.cpp" />
     <ClCompile Include="GameScene\Codes\QTEUIManager.cpp" />
     <ClCompile Include="GameScene\Codes\SceneGame.cpp" />
+    <ClCompile Include="GameScene\Codes\ScoreController.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
     <ClCompile Include="GameScene\Codes\TaskFlag.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKey.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="include\QTEController.h" />
     <ClInclude Include="include\QTEUIManager.h" />
     <ClInclude Include="include\SceneGame.h" />
+    <ClInclude Include="include\ScoreController.h" />
     <ClInclude Include="include\TaskBackGround.h" />
     <ClInclude Include="include\TaskFlag.h" />
     <ClInclude Include="include\TaskKey.h" />

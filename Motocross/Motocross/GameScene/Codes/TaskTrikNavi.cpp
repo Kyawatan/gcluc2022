@@ -58,7 +58,7 @@ void TaskTrikNavi::Update()
 
 void TaskTrikNavi::Draw()
 {
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTrikNum - 2);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTrikNum);
 }
 
 void TaskTrikNavi::Emphasize()
@@ -67,9 +67,11 @@ void TaskTrikNavi::Emphasize()
 		ŒJ‚è•Ô‚µ
 	*****************************************************************************/
 	// ã‰ºˆÚ“®
-	m_fEmphasizeCos += GetDeltaTime() / 2; // üŠú2•b
+	static const float fPeriod = 2.0f; // üŠú2•b
+	static const int fRadius = 20; // ”¼Œa20px
+	m_fEmphasizeCos += GetDeltaTime() / fPeriod;
 	float fCos = (float)cos((double)m_fEmphasizeCos * 2 * M_PI);
-	float fMovement = fCos * GetDeltaTime() * 20; // ”¼Œa20px
+	float fMovement = fCos * GetDeltaTime() * fRadius;
 	m_TaskTransform.Translate(KVector3{ 0, fMovement, 0 });
 }
 
@@ -100,13 +102,15 @@ void TaskTrikNavi::SelectFadeOut()
 		ŒJ‚è•Ô‚µ
 	*****************************************************************************/
 	// ãˆÚ“®
-	float fMovement = GetDeltaTime() * 60; // 1•bŠÔ60px
-	m_TaskTransform.Translate(KVector3{ 0, fMovement, 0 });
-	// “§–¾
-	m_fFadeOutOpacityWait += fMovement;
-	if (30 <= m_fFadeOutOpacityWait)
+	static const int fOneSecMovement = 60; // 1•bŠÔ60px
+	m_TaskTransform.Translate(KVector3{ 0, GetDeltaTime() * fOneSecMovement, 0 });
+	// 30pxã‚ÉˆÚ“®‚µ‚½‚ç“§–¾
+	static const int fWaitPx = 30;
+	static const float fSpeedOpacity = 0.5f; // 0.5•b‚Å“§–¾‰»
+	m_fFadeOutOpacityWait += GetDeltaTime() * fOneSecMovement;
+	if (fWaitPx <= m_fFadeOutOpacityWait)
 	{
-		m_fOpacity -= GetDeltaTime() * 2; // 0.5•b
+		m_fOpacity -= GetDeltaTime() / fSpeedOpacity;
 		m_pSprite->SetOpacity(m_fOpacity);
 	}
 
@@ -127,7 +131,8 @@ void TaskTrikNavi::FadeOut()
 		ŒJ‚è•Ô‚µ
 	*****************************************************************************/
 	// “§–¾
-	m_fOpacity -= GetDeltaTime() * 10; // 0.1•b
+	static const float fSpeedOpacity = 0.1f; // 0.1•b‚Å“§–¾‰»
+	m_fOpacity -= GetDeltaTime() / fSpeedOpacity;
 	m_pSprite->SetOpacity(m_fOpacity);
 
 	/*****************************************************************************

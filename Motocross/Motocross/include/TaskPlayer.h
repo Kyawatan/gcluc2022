@@ -13,7 +13,7 @@ enum class E_PlayerState
 
 enum class E_TrikName
 {
-	NormalJump = 1,	// ただのジャンプ
+	NormalJump,		// ただのジャンプ
 	Beginner1,		// 初級1
 	Intermediate1,	// 中級1
 	Advanced1,		// 上級1

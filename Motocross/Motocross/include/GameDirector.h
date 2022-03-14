@@ -17,7 +17,7 @@ enum class E_GameState
 
 enum class E_TrikDifficulty
 {
-	Beginner = 2,	// ‰‹‰
+	Beginner,		// ‰‹‰
 	Intermediate,	// ’†‹‰
 	Advanced,		// ã‹‰
 };

@@ -57,9 +57,9 @@ void CourseGenerator::Init()
 		{
 			SetRock(j + ( i * iInterval));
 		}
-		// 小加点ゲート生成
-		//SetGate(800);
 	}
+	// 小加点ポイント生成
+	//SetGate(800);
 }
 
 void CourseGenerator::SetBackGround()
@@ -110,7 +110,7 @@ void CourseGenerator::SetJumpRamp(int iIndex, float fPosX)
 	// 各レーンのQTE難度をランダムで決定
 	std::uniform_int_distribution<int> distrDifficulty(static_cast<int>(E_TrikDifficulty::Beginner), static_cast<int>(E_TrikDifficulty::Advanced));
 	//int fDifficultyRand = (int)distrDifficulty(eng);
-	int fDifficultyRand = 2;
+	int fDifficultyRand = 0;
 	QTE_INFORMATION info;
 	info.iIndex = iIndex;
 	info.eLeftDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand);

@@ -57,7 +57,7 @@ void QTEController::StartQTE()
 {
 	// “ü—ÍƒL[”Œˆ’è
 	int iTrikDifficulty = static_cast<int>(m_pGameDirector->GetQTEDifficulty());
-	SetKey(iTrikDifficulty);
+	SetKey(iTrikDifficulty + 2);
 	m_onQTE = true;
 	m_pWindowEffect->Dark();
 }
