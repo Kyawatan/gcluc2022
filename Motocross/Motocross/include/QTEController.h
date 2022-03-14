@@ -3,6 +3,7 @@
 #include "Definition.h"
 #include "GameDirector.h"
 #include "TaskPlayer.h"
+#include "TaskWindowEffect.h"
 #include "QTEUIManager.h"
 
 
@@ -17,6 +18,7 @@ public:
 private:
 	GameDirector*	m_pGameDirector;
 	TaskPlayer*		m_pPlayer;
+	TaskWindowEffect* m_pWindowEffect;
 	QTEUIManager	m_QTEUIManager;
 	std::list<int>	m_iInputKeyList;	// 決定したキーの番号リスト
 	bool	m_onQTE;

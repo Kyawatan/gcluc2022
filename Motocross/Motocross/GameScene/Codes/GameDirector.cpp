@@ -3,6 +3,7 @@
 #include <math.h>
 #include <assert.h>
 #include "TaskPlayer.h"
+#include "TaskWindowEffect.h"
 #include "LaneManager.h"
 #include "CollisionDetector.h"
 
@@ -13,6 +14,7 @@ GameDirector::GameDirector()
 	, m_LaneManager()
 	, m_CollisionDetector()
 	, m_pPlayer(NULL)
+	, m_pWindowEffect(NULL)
 	, m_QTEDifficulty()
 	, m_fDepthCorrection(m_LaneManager.GetLaneInterval()* cos((1.0f / 6.0f)* M_PI))
 {
@@ -43,6 +45,11 @@ const float GameDirector::GetDepthCorrection()
 TaskPlayer* GameDirector::GetPlayerInstance()
 {
 	return m_pPlayer;
+}
+
+TaskWindowEffect* GameDirector::GetWindowEffectInstance()
+{
+	return m_pWindowEffect;
 }
 
 LaneManager* GameDirector::GetLaneManagerInstance()
@@ -80,10 +87,12 @@ void GameDirector::SetQTEDifficulty()
 	}
 }
 
-void GameDirector::SetPlayerInstance(TaskPlayer* pPlayer)
+void GameDirector::SetInstance(TaskPlayer* pPlayer, TaskWindowEffect* pWindowEffect)
 {
 	assert(m_pPlayer == NULL && pPlayer != NULL);
+	assert(m_pWindowEffect == NULL && pWindowEffect != NULL);
 	m_pPlayer = pPlayer;
+	m_pWindowEffect = pWindowEffect;
 }
 
 void GameDirector::Update()

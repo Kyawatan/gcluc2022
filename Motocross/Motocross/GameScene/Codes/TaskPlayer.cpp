@@ -75,11 +75,10 @@ void TaskPlayer::Update()
 	m_pAnim->Update();
 	m_vMovement = KVector3{ 0, 0, 0 };
 	if (CanAutoRun()) AutoRun(); // 自動前進
+	if (m_canChangeLane) ChangeLane(); //　レーン移動
 
 	if (m_pGameDirector->GetCurrentGameState() == E_GameState::Playing)
 	{
-		if (m_canChangeLane) ChangeLane(); //　レーン移動
-
 		switch (m_eCurrentState)
 		{
 		case E_PlayerState::Normal:

@@ -4,6 +4,7 @@
 #include "CollisionDetector.h"
 
 class TaskPlayer;
+class TaskWindowEffect;
 
 enum class E_GameState
 {
@@ -33,6 +34,7 @@ public:
 	const E_TrikDifficulty GetQTEDifficulty();
 
 	TaskPlayer* GetPlayerInstance();
+	TaskWindowEffect* GetWindowEffectInstance();
 	LaneManager* GetLaneManagerInstance();
 	CollisionDetector* GetCollisionDetectorInstance();
 
@@ -42,6 +44,7 @@ private:
 	LaneManager			m_LaneManager;
 	CollisionDetector	m_CollisionDetector; // レーンの奥行補正
 	TaskPlayer*			m_pPlayer;
+	TaskWindowEffect*	m_pWindowEffect;
 
 	E_TrikDifficulty	m_QTEDifficulty;
 	const float			m_fDepthCorrection;
@@ -49,6 +52,6 @@ private:
 	void SetQTEDifficulty();
 
 	// SceneGameクラスだけが呼び出す
-	void SetPlayerInstance(TaskPlayer* pPlayer);
+	void SetInstance(TaskPlayer* pPlayer, TaskWindowEffect* pWindowEffect);
 	void Update();
 };

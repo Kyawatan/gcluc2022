@@ -7,6 +7,7 @@
 QTEController::QTEController(GameDirector* pGameDirector)
 	: m_pGameDirector(pGameDirector)
 	, m_pPlayer(NULL)
+	, m_pWindowEffect(NULL)
 	, m_QTEUIManager()
 	, m_iInputKeyList(NULL)
 	, m_onQTE(false)
@@ -36,6 +37,7 @@ void QTEController::Update()
 	case E_EventName::QTEStart:
 		// QTEŠJŽn
 		if (m_pPlayer == NULL) m_pPlayer = m_pGameDirector->GetPlayerInstance();
+		if (m_pWindowEffect == NULL) m_pWindowEffect = m_pGameDirector->GetWindowEffectInstance();
 		StartQTE();
 		break;
 
@@ -57,6 +59,7 @@ void QTEController::StartQTE()
 	int iTrikDifficulty = static_cast<int>(m_pGameDirector->GetQTEDifficulty());
 	SetKey(iTrikDifficulty);
 	m_onQTE = true;
+	m_pWindowEffect->Dark();
 }
 
 void QTEController::FinishQTE()
@@ -65,6 +68,7 @@ void QTEController::FinishQTE()
 	m_iInputKeyList.clear();
 	m_QTEUIManager.FinishRemainingInputKey();
 	m_onQTE = false;
+	m_pWindowEffect->FadeIn();
 }
 
 void QTEController::ProceedQTE()

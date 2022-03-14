@@ -30,7 +30,7 @@ TaskTrikNavi::TaskTrikNavi(GameDirector* pGameDirector, int iTrikNum, KVector3 v
 
 TaskTrikNavi::~TaskTrikNavi()
 {
-
+	delete m_pSprite;
 }
 
 void TaskTrikNavi::Update()

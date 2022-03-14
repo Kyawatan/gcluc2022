@@ -19,5 +19,8 @@ private:
 	CourseGenerator		m_CourseGenerator;
 	QTEController		m_QTEController;
 
+	TaskBase* m_pWindowEffect;
 	TaskBase* m_pPlayer;
+
+	bool m_isOnce;
 };
