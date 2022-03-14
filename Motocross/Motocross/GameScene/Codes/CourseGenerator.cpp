@@ -109,13 +109,12 @@ void CourseGenerator::SetJumpRamp(int iIndex, float fPosX)
 
 	// 各レーンのQTE難度をランダムで決定
 	std::uniform_int_distribution<int> distrDifficulty(static_cast<int>(E_TrikDifficulty::Beginner), static_cast<int>(E_TrikDifficulty::Advanced));
-	//int fDifficultyRand = (int)distrDifficulty(eng);
-	int fDifficultyRand = 0;
+	int fDifficultyRand = (int)distrDifficulty(eng);
 	QTE_INFORMATION info;
 	info.iIndex = iIndex;
-	info.eLeftDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand);
-	info.eCenterDifficulty = static_cast<E_TrikDifficulty>((fDifficultyRand + 1));
-	info.eRightDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand + 2);
+	info.eLeftDifficulty = static_cast<E_TrikDifficulty>(fDifficultyRand % static_cast<int>(E_TrikDifficulty::Num));
+	info.eCenterDifficulty = static_cast<E_TrikDifficulty>((fDifficultyRand + 1) % static_cast<int>(E_TrikDifficulty::Num));
+	info.eRightDifficulty = static_cast<E_TrikDifficulty>((fDifficultyRand + 2) % static_cast<int>(E_TrikDifficulty::Num));
 	m_pGameDirector->SetQTEInformation(info);
 
 	float fLeftPosYZ = m_pLaneManager->GetLanePos(E_CourseLane::Left);

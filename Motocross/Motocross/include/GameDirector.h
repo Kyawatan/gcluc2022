@@ -20,6 +20,7 @@ enum class E_TrikDifficulty
 	Beginner,		// ‰‹‰
 	Intermediate,	// ’†‹‰
 	Advanced,		// ã‹‰
+	Num,
 };
 
 struct QTE_INFORMATION
