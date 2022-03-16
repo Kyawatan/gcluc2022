@@ -17,7 +17,7 @@ SceneGame::SceneGame()
 	// コース生成
 	m_CourseGenerator.Init();
 	// ウィンドウエフェクト生成
-	m_pWindowEffect = new TaskWindowEffect();
+	m_pWindowEffect = new TaskWindowEffect(1);
 	// プレイヤー生成
 	m_pPlayer = new TaskPlayer(&m_GameDirector, &m_ScoreController);
 	m_GameDirector.SetInstance(dynamic_cast<TaskPlayer*>(m_pPlayer), dynamic_cast<TaskWindowEffect*>(m_pWindowEffect));

@@ -12,8 +12,10 @@ public:
 
 private:
 	CameraController	m_CameraController;
-
 	TaskBase* m_pWindowEffect;
 
 	bool m_isOnce;
+	float m_fWaitTime;
+
+	void Finish();
 };

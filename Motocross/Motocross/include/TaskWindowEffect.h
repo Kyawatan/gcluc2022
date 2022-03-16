@@ -6,7 +6,7 @@
 class TaskWindowEffect : public TaskBase
 {
 public:
-	TaskWindowEffect();
+	TaskWindowEffect(float fOpacity);
 	~TaskWindowEffect();
 
 	void Update() override;

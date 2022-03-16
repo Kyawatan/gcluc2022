@@ -157,6 +157,7 @@
     <ClCompile Include="GameScene\Codes\ScoreController.cpp" />
     <ClCompile Include="GameScene\Codes\ScoreUIManager.cpp" />
     <ClCompile Include="GameScene\Codes\TaskBackGround.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskBear.cpp" />
     <ClCompile Include="GameScene\Codes\TaskFlag.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKey.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKobu.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="include\ScoreController.h" />
     <ClInclude Include="include\ScoreUIManager.h" />
     <ClInclude Include="include\TaskBackGround.h" />
+    <ClInclude Include="include\TaskBear.h" />
     <ClInclude Include="include\TaskFlag.h" />
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />

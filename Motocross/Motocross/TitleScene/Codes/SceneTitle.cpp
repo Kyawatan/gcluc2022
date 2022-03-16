@@ -3,15 +3,17 @@
 #include "TaskWindowEffect.h"
 #include "TaskBackGround.h"
 
+#define FINISH_WAIT_TIME 1.0f
 
 SceneTitle::SceneTitle()
 	: SceneBase()
 	, m_CameraController()
 	, m_pWindowEffect(NULL)
 	, m_isOnce(true)
+	, m_fWaitTime(0)
 {
 	// ウィンドウエフェクト生成
-	//m_pWindowEffect = new TaskWindowEffect();
+	m_pWindowEffect = new TaskWindowEffect(0);
 	// メインカメラ位置
 	m_CameraController.SetDefault();
 
@@ -36,10 +38,9 @@ void SceneTitle::Update()
 	// SPACEキー押下でシーン終了
 	if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
 	{
-		SetIsFinish();
-		SetNextSceneNum(static_cast<int>(E_SceneName::Game));
-		DeleteAllTask();
+		m_fWaitTime = FINISH_WAIT_TIME;
 	}
+	if (0 < m_fWaitTime) Finish();
 
 	// メニュー操作
 	if (GetpKeyState()->Down(E_KEY_NAME::W))
@@ -49,5 +50,17 @@ void SceneTitle::Update()
 	else if (GetpKeyState()->Down(E_KEY_NAME::S))
 	{
 
+	}
+}
+
+void SceneTitle::Finish()
+{
+	m_fWaitTime -= GetDeltaTime();
+	if (m_fWaitTime <= 0)
+	{
+		// シーン終了
+		SetIsFinish();
+		SetNextSceneNum(static_cast<int>(E_SceneName::Game));
+		DeleteAllTask();
 	}
 }

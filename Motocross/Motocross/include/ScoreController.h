@@ -7,8 +7,8 @@ enum class E_Point
 	TrikBiginner		= 30,
 	TrikIntermediate	= 50,
 	TrikAdvanced		= 100,
+	DamageRock			= -10,
 	PointGate			= 10,
-	DamageRock			= -20,
 };
 
 class ScoreController

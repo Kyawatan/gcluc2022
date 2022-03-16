@@ -2,10 +2,10 @@
 #include "ColorQuad.h"
 
 
-TaskWindowEffect::TaskWindowEffect()
+TaskWindowEffect::TaskWindowEffect(float fOpacity)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::UI), NULL)
 	, m_pSprite(NULL)
-	, m_fOpacity(1)
+	, m_fOpacity(fOpacity)
 	, m_isOnce(true)
 	, m_isFinish(true)
 	, m_pFunc(NULL)
