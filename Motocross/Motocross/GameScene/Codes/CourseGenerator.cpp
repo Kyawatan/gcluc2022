@@ -64,7 +64,7 @@ void CourseGenerator::Init()
 
 void CourseGenerator::SetBackGround()
 {
-	TaskBackGround* back = new TaskBackGround();
+	TaskBackGround* back = new TaskBackGround(E_SceneName::Game);
 	m_fCourseLength = back->GetCourseLength();
 }
 

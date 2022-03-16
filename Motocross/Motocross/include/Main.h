@@ -6,12 +6,12 @@
 #include "Definition.h"
 
 // ÉVÅ[Éìñº
-enum class E_SceneName
-{
-	Title,
-	Game,
-	Result,
-};
+//enum class E_SceneName
+//{
+//	Title,
+//	Game,
+//	Result,
+//};
 
 class Main
 {

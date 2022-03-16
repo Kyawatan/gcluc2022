@@ -6,7 +6,7 @@
 class TaskBackGround : public TaskBase
 {
 public:
-	TaskBackGround();
+	TaskBackGround(E_SceneName eCurrentScene);
 	~TaskBackGround();
 
 	void Update() override;

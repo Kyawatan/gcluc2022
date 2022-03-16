@@ -168,6 +168,8 @@
     <ClCompile Include="Main\Main.cpp" />
     <ClCompile Include="Main\TaskWindowEffect.cpp" />
     <ClCompile Include="Main\WinMain.cpp" />
+    <ClCompile Include="ResultScene\Codes\SceneResult.cpp" />
+    <ClCompile Include="TitleScene\Codes\SceneTitle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CameraController.h" />
@@ -180,6 +182,8 @@
     <ClInclude Include="include\QTEController.h" />
     <ClInclude Include="include\QTEUIManager.h" />
     <ClInclude Include="include\SceneGame.h" />
+    <ClInclude Include="include\SceneResult.h" />
+    <ClInclude Include="include\SceneTitle.h" />
     <ClInclude Include="include\ScoreController.h" />
     <ClInclude Include="include\ScoreUIManager.h" />
     <ClInclude Include="include\TaskBackGround.h" />

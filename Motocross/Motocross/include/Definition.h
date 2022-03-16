@@ -15,12 +15,12 @@ using namespace Kawata;
 ****************************************************/
 
 // シーン名
-//enum class E_SceneName
-//{
-//	Title,
-//	Game,
-//	Result,
-//};
+enum class E_SceneName
+{
+	Title,
+	Game,
+	Result,
+};
 
 // タスクのDraw順序（番号の小さいものが手前に来る）
 enum class E_TaskDrawNum
