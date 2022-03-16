@@ -20,4 +20,5 @@ private:
 	QuadBase*	m_pSprite;
 	TaskPlayer* m_pPlayer;
 	bool		m_onCollisionDetection;
+	int			m_iTipNum;
 };

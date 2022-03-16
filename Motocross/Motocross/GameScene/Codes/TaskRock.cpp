@@ -1,5 +1,6 @@
 #include "TaskRock.h"
-#include "TexQuad.h"
+#include <random>
+#include "ScrapTexQuad.h"
 #include "BoxCollider.h"
 
 
@@ -8,9 +9,17 @@ TaskRock::TaskRock(KVector3 vPos)
 	, m_pSprite(NULL)
 	, m_pPlayer(NULL)
 	, m_onCollisionDetection(false)
+	, m_iTipNum(0)
 {
 	// スプライト作成
-	m_pSprite = new TexQuad(&m_TaskTransform, 128, 128, L"GameScene/Images/rock.png", 1, 1);
+	m_pSprite = new ScrapTexQuad(&m_TaskTransform);
+	// テクスチャをセット
+	TEXTURE_SCRAP_INFO texInfo;
+	texInfo.iTipWidth = 128;
+	texInfo.iTipHeight = 128;
+	texInfo.iTipRow = 1;
+	texInfo.iTipColumn = 2;
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(256, 128, L"GameScene/Images/rock.png", &texInfo);
 	//m_pSprite->m_transform.SetPosition(KVector3{ 0, -16, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.SetPosition(vPos);
 	
@@ -22,6 +31,12 @@ TaskRock::TaskRock(KVector3 vPos)
 		KVector3{ 0.25f, 0.4f, 1 }
 	);
 	//m_pCollider->AddLine(); // 補助線表示
+
+	// グラフィックをランダムで決定
+	std::random_device rd;
+	std::default_random_engine eng(rd());
+	std::uniform_int_distribution<int> distr(0, 1);
+	m_iTipNum = (int)distr(eng);
 }
 
 TaskRock::~TaskRock()
@@ -51,7 +66,7 @@ void TaskRock::Update()
 
 void TaskRock::Draw()
 {
-	m_pSprite->Draw();
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTipNum);
 	m_pCollider->DrawLine();
 }
 
