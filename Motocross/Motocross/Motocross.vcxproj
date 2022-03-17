@@ -171,6 +171,7 @@
     <ClCompile Include="GameScene\Codes\TaskTrikNavi.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
+    <ClCompile Include="Main\TaskNumber.cpp" />
     <ClCompile Include="Main\TaskWindowEffect.cpp" />
     <ClCompile Include="Main\WinMain.cpp" />
     <ClCompile Include="ResultScene\Codes\SceneResult.cpp" />
@@ -198,6 +199,7 @@
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
     <ClInclude Include="include\TaskMenuPointer.h" />
+    <ClInclude Include="include\TaskNumber.h" />
     <ClInclude Include="include\TaskPlayer.h" />
     <ClInclude Include="include\TaskPlayerShadow.h" />
     <ClInclude Include="include\TaskRock.h" />

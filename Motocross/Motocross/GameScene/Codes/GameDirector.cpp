@@ -111,6 +111,8 @@ void GameDirector::SetInstance(TaskPlayer* pPlayer, TaskWindowEffect* pWindowEff
 
 void GameDirector::Update()
 {
+	//if (m_eCurrentGameState != E_GameState::Playing) return;
+
 	// プレイヤーとイベント発生ポイントの当たり判定
 	KVector2 vPlayerPoint = m_pPlayer->GetCollisionPoint();
 	int eCollisionNum = m_CollisionDetector.CollisionDetection(vPlayerPoint);

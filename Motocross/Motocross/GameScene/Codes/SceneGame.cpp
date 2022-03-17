@@ -1,7 +1,7 @@
 #include "SceneGame.h"
 #include "TaskPlayer.h"
 #include "TaskWindowEffect.h"
-
+#include "TaskNumber.h"
 
 SceneGame::SceneGame()
 	: SceneBase()
@@ -12,12 +12,17 @@ SceneGame::SceneGame()
 	, m_ScoreController()
 	, m_pWindowEffect(NULL)
 	, m_pPlayer(NULL)
+	, m_pNumber(NULL)
 	, m_isOnce(true)
+	, m_fWaitTime(0)
+	, m_iCountDown(4)
 {
 	// コース生成
 	m_CourseGenerator.Init();
 	// ウィンドウエフェクト生成
 	m_pWindowEffect = new TaskWindowEffect(1);
+	// 数字生成
+	m_pNumber = new TaskNumber();
 	// プレイヤー生成
 	m_pPlayer = new TaskPlayer(&m_GameDirector, &m_ScoreController);
 	m_GameDirector.SetInstance(dynamic_cast<TaskPlayer*>(m_pPlayer), dynamic_cast<TaskWindowEffect*>(m_pWindowEffect));
@@ -39,13 +44,25 @@ void SceneGame::Update()
 		if (m_isOnce)
 		{
 			// 画面フェードイン
-			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(1);
+			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(1.5f);
+			m_fWaitTime = 1.5f;
 			m_isOnce = false;
 		}
-		// SPACEキー押下でプレイ中に
-		if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
+		m_fWaitTime -= GetDeltaTime();
+		if (m_fWaitTime <= 0)
 		{
-			m_GameDirector.m_eCurrentGameState = E_GameState::Playing;
+			// カウントダウン
+			m_fWaitTime = 1.0f;
+			m_iCountDown--;
+			if (0 < m_iCountDown)
+			{
+				dynamic_cast<TaskNumber*>(m_pNumber)->SetNumber(m_iCountDown, 0, 100);
+			}
+			else
+			{
+				dynamic_cast<TaskNumber*>(m_pNumber)->Disable();
+				m_GameDirector.m_eCurrentGameState = E_GameState::Playing;
+			}
 		}
 		break;
 

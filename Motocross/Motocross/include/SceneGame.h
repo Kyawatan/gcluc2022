@@ -23,6 +23,9 @@ private:
 
 	TaskBase* m_pWindowEffect;
 	TaskBase* m_pPlayer;
+	TaskBase* m_pNumber;
 
-	bool m_isOnce;
+	bool	m_isOnce;
+	float	m_fWaitTime;
+	int		m_iCountDown;
 };
