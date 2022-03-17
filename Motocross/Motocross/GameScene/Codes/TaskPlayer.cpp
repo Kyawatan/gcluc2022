@@ -156,13 +156,13 @@ void TaskPlayer::Init()
 	texInfo.iTipHeight = 256;
 	texInfo.iTipRow = 6;
 	texInfo.iTipColumn = 3;
-	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 1536, L"GameScene/Images/player_base.png", &texInfo);
+	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 1536, L"Resources/img/player_base.png", &texInfo);
 	// テクスチャをセット（index:18～27）
 	texInfo.iTipWidth = 256;
 	texInfo.iTipHeight = 256;
 	texInfo.iTipRow = 8;
 	texInfo.iTipColumn = 5;
-	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"GameScene/Images/player_jump.png", &texInfo);
+	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"Resources/img/player_jump.png", &texInfo);
 	// アニメーション作成
 	m_pPlayerAnim = new KawataAnimation();
 	SetPlayerAnimation();
@@ -176,7 +176,7 @@ void TaskPlayer::Init()
 	texInfo.iTipHeight = 32;
 	texInfo.iTipRow = 2;
 	texInfo.iTipColumn = 3;
-	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pShadow)->SetTexture(384, 64, L"GameScene/Images/player_shadow.png", &texInfo);
+	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pShadow)->SetTexture(384, 64, L"Resources/img/player_shadow.png", &texInfo);
 	// アニメーション作成
 	m_pShadowAnim = new KawataAnimation();
 	SetShadowAnimation();

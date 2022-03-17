@@ -27,7 +27,7 @@ TaskBear::TaskBear()
 	texInfo.iTipHeight = 768;
 	texInfo.iTipRow = 2;
 	texInfo.iTipColumn = 2;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"GameScene/Images/bear_point.png", &texInfo);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_point.png", &texInfo);
 }
 
 TaskBear::~TaskBear()

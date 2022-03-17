@@ -26,7 +26,7 @@ TaskKey::TaskKey(int iKeyCode)
 	texInfo.iTipHeight = 256;
 	texInfo.iTipRow = 3;
 	texInfo.iTipColumn = 3;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 768, L"GameScene/Images/keys.png", &texInfo);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 768, L"Resources/img/key.png", &texInfo);
 }
 
 TaskKey::~TaskKey()

@@ -26,7 +26,7 @@ TaskTrikNavi::TaskTrikNavi(GameDirector* pGameDirector, int iIndex, E_TrikDiffic
 	texInfo.iTipHeight = 128;
 	texInfo.iTipRow = 1;
 	texInfo.iTipColumn = 3;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(384, 128, L"GameScene/Images/trik_navi.png", &texInfo);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(384, 128, L"Resources/img/trik_navi.png", &texInfo);
 }
 
 TaskTrikNavi::~TaskTrikNavi()

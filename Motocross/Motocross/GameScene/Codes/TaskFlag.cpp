@@ -9,7 +9,7 @@ TaskFlag::TaskFlag(KVector3 vPos)
 	, m_pCollisionLine(NULL)
 {
 	// スプライト生成
-	m_pSprite = new TexQuad(&m_TaskTransform, 64, 64, L"GameScene/Images/flag.png", 1, 1);
+	m_pSprite = new TexQuad(&m_TaskTransform, 64, 64, L"Resources/img/flag.png", 1, 1);
 	m_pSprite->m_transform.SetPosition(KVector3{ 0, 16, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.SetPosition(vPos);
 }

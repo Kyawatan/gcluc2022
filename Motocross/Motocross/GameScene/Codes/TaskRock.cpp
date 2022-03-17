@@ -19,7 +19,7 @@ TaskRock::TaskRock(KVector3 vPos)
 	texInfo.iTipHeight = 128;
 	texInfo.iTipRow = 1;
 	texInfo.iTipColumn = 2;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(256, 128, L"GameScene/Images/rock.png", &texInfo);
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(256, 128, L"Resources/img/rock.png", &texInfo);
 	//m_pSprite->m_transform.SetPosition(KVector3{ 0, -16, 0 }); // イラストの足元をタスクの座標にずらす
 	m_TaskTransform.SetPosition(vPos);
 	
