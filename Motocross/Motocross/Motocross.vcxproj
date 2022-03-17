@@ -162,6 +162,7 @@
     <ClCompile Include="GameScene\Codes\TaskKey.cpp" />
     <ClCompile Include="GameScene\Codes\TaskKobu.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskPlayerShadow.cpp" />
     <ClCompile Include="GameScene\Codes\TaskRock.cpp" />
     <ClCompile Include="GameScene\Codes\TaskStealFrame.cpp" />
     <ClCompile Include="GameScene\Codes\TaskTrikNavi.cpp" />
@@ -193,6 +194,7 @@
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
     <ClInclude Include="include\TaskPlayer.h" />
+    <ClInclude Include="include\TaskPlayerShadow.h" />
     <ClInclude Include="include\TaskRock.h" />
     <ClInclude Include="include\TaskStealFrame.h" />
     <ClInclude Include="include\TaskTrikNavi.h" />

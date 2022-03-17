@@ -41,13 +41,16 @@ private:
 	GameDirector*		m_pGameDirector;
 	ScoreController*	m_pScoreController;
 	QuadBase*			m_pSprite;
-	KawataAnimation*	m_pAnim;
+	QuadBase*			m_pShadow;
+	KawataAnimation*	m_pPlayerAnim;
+	KawataAnimation*	m_pShadowAnim;
 	int					m_iAnimTexIndex[2];
 	E_PlayerState		m_eCurrentState;
 	int					m_iTrikNum;
 	E_Point				m_eTrikPoint;
 
 	float			m_fAutoRunSpeed;
+	float			m_fJumpStartPosX;
 
 	LaneManager*	m_pLaneManager;
 	E_CourseLane	m_eCurrentLane;
@@ -59,7 +62,8 @@ private:
 	KVector3		m_vMovement;
 
 	void Init();
-	void SetAnimation();
+	void SetPlayerAnimation();
+	void SetShadowAnimation();
 
 	bool CanAutoRun();
 	void AutoRun();

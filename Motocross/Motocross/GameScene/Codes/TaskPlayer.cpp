@@ -7,6 +7,7 @@
 
 #define PLAYER_START_POS_X	400
 #define PLAYER_GOAL_POS_X	COURSE_LENGTH - 500
+#define SHADOW_INITIAL_POS	KVector3{ 0, -10, 0 }
 
 #define RUN_SPEED_NORMAL	300
 #define RUN_SPEED_DAMAGE	200
@@ -36,19 +37,27 @@ enum class E_PlayerAnim
 	JumpDescent2,
 };
 
+enum class E_ShadowAnim
+{
+	Normal,
+	Jump,
+};
 
 TaskPlayer::TaskPlayer(GameDirector* pGameDirector, ScoreController* pScoreController)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::PlayerDefault), static_cast<int>(E_TaskLayerNum::Player))
 	, m_pGameDirector(pGameDirector)
 	, m_pScoreController(pScoreController)
 	, m_pSprite(NULL)
-	, m_pAnim(NULL)
+	, m_pShadow(NULL)
+	, m_pPlayerAnim(NULL)
+	, m_pShadowAnim(NULL)
 	, m_iAnimTexIndex()
 	, m_eCurrentState(E_PlayerState::Normal)
 	, m_iTrikNum(0)
 	, m_eTrikPoint()
 	, m_pLaneManager(pGameDirector->GetLaneManagerInstance())
 	, m_fAutoRunSpeed(RUN_SPEED_NORMAL)
+	, m_fJumpStartPosX(0)
 	, m_eCurrentLane(E_CourseLane::Center)
 	, m_eNextLane(E_CourseLane::Center)
 	, m_fNextLaneDirection(0)
@@ -69,12 +78,14 @@ TaskPlayer::TaskPlayer(GameDirector* pGameDirector, ScoreController* pScoreContr
 TaskPlayer::~TaskPlayer()
 {
 	delete m_pSprite;
-	delete m_pAnim;
+	delete m_pShadow;
+	delete m_pPlayerAnim;
 }
 
 void TaskPlayer::Update()
 {
-	m_pAnim->Update();
+	m_pPlayerAnim->Update();
+	m_pShadowAnim->Update();
 	m_vMovement = KVector3{ 0, 0, 0 };
 	if (CanAutoRun()) AutoRun(); // 自動前進
 	if (m_canChangeLane) ChangeLane(); //　レーン移動
@@ -123,7 +134,10 @@ void TaskPlayer::Update()
 
 void TaskPlayer::Draw()
 {
-	int iIndex = m_pAnim->GetCurrentIndex();
+	// 影表示
+	dynamic_cast<ScrapTexQuad*>(m_pShadow)->Draw(0, m_pShadowAnim->GetCurrentIndex());
+	// プレイヤー表示
+	int iIndex = m_pPlayerAnim->GetCurrentIndex();
 	int iAnimTexIndex = 0; // テクスチャ切り替え
 	if (JUMP_NUM <= iIndex) iAnimTexIndex = 1;
 	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(m_iAnimTexIndex[iAnimTexIndex],iIndex);
@@ -136,11 +150,37 @@ void TaskPlayer::Init()
 	// スプライト作成
 	m_pSprite = new ScrapTexQuad(&m_TaskTransform);
 	m_pSprite->m_transform.SetPosition(KVector3{ 0, 76, 0 }); // イラストの足元をタスクの座標にずらす
-
+	// テクスチャをセット（index:0～17）
+	TEXTURE_SCRAP_INFO texInfo;
+	texInfo.iTipWidth = 256;
+	texInfo.iTipHeight = 256;
+	texInfo.iTipRow = 6;
+	texInfo.iTipColumn = 3;
+	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 1536, L"GameScene/Images/player_base.png", &texInfo);
+	// テクスチャをセット（index:18～27）
+	texInfo.iTipWidth = 256;
+	texInfo.iTipHeight = 256;
+	texInfo.iTipRow = 8;
+	texInfo.iTipColumn = 5;
+	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"GameScene/Images/player_jump.png", &texInfo);
 	// アニメーション作成
-	m_pAnim = new KawataAnimation();
-	SetAnimation();
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Run), true, NULL);
+	m_pPlayerAnim = new KawataAnimation();
+	SetPlayerAnimation();
+	m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Run), true, NULL);
+
+	// プレイヤーの足元に影作成
+	m_pShadow = new ScrapTexQuad(&m_TaskTransform);
+	m_pShadow->m_transform.SetPosition(SHADOW_INITIAL_POS);
+	// テクスチャをセット
+	texInfo.iTipWidth = 128;
+	texInfo.iTipHeight = 32;
+	texInfo.iTipRow = 2;
+	texInfo.iTipColumn = 3;
+	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pShadow)->SetTexture(384, 64, L"GameScene/Images/player_shadow.png", &texInfo);
+	// アニメーション作成
+	m_pShadowAnim = new KawataAnimation();
+	SetShadowAnimation();
+	m_pShadowAnim->SetAnimation(static_cast<int>(E_ShadowAnim::Normal), true, NULL);
 
 	// コライダ―作成
 	m_pCollider = new BoxCollider(&m_TaskTransform, KVector3{ 256, 256, 0 });
@@ -155,71 +195,55 @@ void TaskPlayer::Init()
 	//m_pCollider->AddLine(); // 補助線表示
 }
 
-void TaskPlayer::SetAnimation()
+void TaskPlayer::SetPlayerAnimation()
 {
-	// テクスチャをセット（index:0～17）
-	TEXTURE_SCRAP_INFO texInfo;
-	texInfo.iTipWidth = 256;
-	texInfo.iTipHeight = 256;
-	texInfo.iTipRow = 6;
-	texInfo.iTipColumn = 3;
-	m_iAnimTexIndex[0] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(768, 1536, L"GameScene/Images/player_base.png", &texInfo);
-
-	// テクスチャをセット（index:18～27）
-	texInfo.iTipWidth = 256;
-	texInfo.iTipHeight = 256;
-	texInfo.iTipRow = 8;
-	texInfo.iTipColumn = 5;
-	m_iAnimTexIndex[1] = dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1280, 2048, L"GameScene/Images/player_jump.png", &texInfo);
-
-	//　アニメーションをセット
 	int index = static_cast<int>(E_PlayerAnim::Run);
 	const int runNum = 3;
 	int runOrders[runNum] = { 0, 1, 2 };
 	float runSpeeds[runNum] = { 0.1f, 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, runNum, runOrders, runSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, runNum, runOrders, runSpeeds);
 	
 	index = static_cast<int>(E_PlayerAnim::Crouch);
 	const int crouchNum = 2;
 	int crouchOrders[crouchNum] = { 3, 4 };
 	float crouchSpeeds[crouchNum] = { 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, crouchNum, crouchOrders, crouchSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, crouchNum, crouchOrders, crouchSpeeds);
 
 	index = static_cast<int>(E_PlayerAnim::MoveRight);
 	const int rightNum = 2;
 	int rightOrders[rightNum] = { 5, 6 };
 	float rightSpeeds[rightNum] = { 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, rightNum, rightOrders, rightSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, rightNum, rightOrders, rightSpeeds);
 
 	index = static_cast<int>(E_PlayerAnim::MoveLeft);
 	const int leftNum = 2;
 	int leftOrders[leftNum] = { 7, 8 };
 	float leftSpeeds[leftNum] = { 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, leftNum, leftOrders, leftSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, leftNum, leftOrders, leftSpeeds);
 
 	index = static_cast<int>(E_PlayerAnim::MoveKusshon);
 	const int rMoveEndNum = 1;
 	int rMoveEndOrders[rMoveEndNum] = { 4 };
 	float rMoveEndSpeeds[rMoveEndNum] = { 0.1f };
-	m_pAnim->SetAnimationInfo(index, rMoveEndNum, rMoveEndOrders, rMoveEndSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, rMoveEndNum, rMoveEndOrders, rMoveEndSpeeds);
 	
 	index = static_cast<int>(E_PlayerAnim::JumpReady);
 	const int rReadyNum = 3;
 	int rReadyOrders[rReadyNum] = { 9, 10, 11 };
 	float rReadySpeeds[rReadyNum] = { 0.16f, 0.16f, 0.16f };
-	m_pAnim->SetAnimationInfo(index, rReadyNum, rReadyOrders, rReadySpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, rReadyNum, rReadyOrders, rReadySpeeds);
 
 	index = static_cast<int>(E_PlayerAnim::JumpEnd);
 	const int rJumpEndNum = 4;
 	int rJumpEndOrders[rJumpEndNum] = { 12, 13, 14, 15 };
 	float rJumpEndSpeeds[rJumpEndNum] = { 0.1f, 0.1f, 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, rJumpEndNum, rJumpEndOrders, rJumpEndSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, rJumpEndNum, rJumpEndOrders, rJumpEndSpeeds);
 
 	index = static_cast<int>(E_PlayerAnim::Damage);
 	const int rJDamageNum = 10;
 	int rDamageOrders[rJDamageNum] = { 9, 10, 11, 20, 22, 25, 12, 13, 14, 15 };
 	float rDamageSpeeds[rJDamageNum] = { 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f, 0.1f };
-	m_pAnim->SetAnimationInfo(index, rJDamageNum, rDamageOrders, rDamageSpeeds);
+	m_pPlayerAnim->SetAnimationInfo(index, rJDamageNum, rDamageOrders, rDamageSpeeds);
 
 	// 各トリックのアニメーション
 	int iNum = JUMP_NUM;
@@ -230,39 +254,52 @@ void TaskPlayer::SetAnimation()
 		const int rRise1Num = 2;
 		int rRise1Orders[rRise1Num] = { iNum, iNum += 1 };
 		float rRise1Speeds[rRise1Num] = { 0.1f, 0.1f };
-		m_pAnim->SetAnimationInfo(index, rRise1Num, rRise1Orders, rRise1Speeds);
+		m_pPlayerAnim->SetAnimationInfo(index, rRise1Num, rRise1Orders, rRise1Speeds);
 
 		// JumpRise2
 		index++;
 		const int rRise2Num = 2;
 		int rRise2Orders[rRise2Num] = { iNum += 1, iNum += 1 };
 		float rRise2Speeds[rRise2Num] = { 0.1f, 0.1f };
-		m_pAnim->SetAnimationInfo(index, rRise2Num, rRise2Orders, rRise2Speeds);
+		m_pPlayerAnim->SetAnimationInfo(index, rRise2Num, rRise2Orders, rRise2Speeds);
 
 		// JumpStay
 		index++;
 		const int rStayNum = 3;
 		int rStayOrders[rStayNum] = { iNum += 1, iNum += 1, iNum += 1 };
 		float rStaySpeeds[rStayNum] = { 0.1f, 0.1f, 0.1f };
-		m_pAnim->SetAnimationInfo(index, rStayNum, rStayOrders, rStaySpeeds);
+		m_pPlayerAnim->SetAnimationInfo(index, rStayNum, rStayOrders, rStaySpeeds);
 
 		// JumpDescent1
 		index++;
 		const int rDescentNum1 = 2;
 		int rDescentOrders1[rDescentNum1] = { iNum += 1, iNum += 1 };
 		float rDescentSpeeds1[rDescentNum1] = { 0.1f, 0.1f };
-		m_pAnim->SetAnimationInfo(index, rDescentNum1, rDescentOrders1, rDescentSpeeds1);
+		m_pPlayerAnim->SetAnimationInfo(index, rDescentNum1, rDescentOrders1, rDescentSpeeds1);
 
 		// JumpDescent2
 		index++;
 		const int rDescentNum2 = 1;
 		int rDescentOrders2[rDescentNum2] = { iNum += 1 };
 		float rDescentSpeeds2[rDescentNum2] = { 0.1f };
-		m_pAnim->SetAnimationInfo(index, rDescentNum2, rDescentOrders2, rDescentSpeeds2);
+		m_pPlayerAnim->SetAnimationInfo(index, rDescentNum2, rDescentOrders2, rDescentSpeeds2);
 
 		iNum++;
 		index++;
 	}
+}
+
+void TaskPlayer::SetShadowAnimation()
+{
+	int index = static_cast<int>(E_ShadowAnim::Normal);
+	const int iNum = 3;
+	int iNormalOrders[iNum] = { 0, 1, 2 };
+	float iSpeeds[iNum] = { 0.1f, 0.1f, 0.1f };
+	m_pShadowAnim->SetAnimationInfo(index, iNum, iNormalOrders, iSpeeds);
+
+	index = static_cast<int>(E_ShadowAnim::Jump);
+	int iJumpOrders[iNum] = { 3, 4, 5 };
+	m_pShadowAnim->SetAnimationInfo(index, iNum, iJumpOrders, iSpeeds);
 }
 
 const KVector3 TaskPlayer::GetMovement()
@@ -344,11 +381,11 @@ void TaskPlayer::SetChangeLane(E_CourseChange eNextLane)
 	// 次のレーンへの方向に応じたアニメーションセット
 	if (eNextLane == E_CourseChange::Right)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveRight));
 	}
 	else
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::MoveLeft));
 	}
 }
 
@@ -379,11 +416,11 @@ void TaskPlayer::ChangeLane()
 	// プレイヤーの状態に応じたアニメーションセット
 	if (m_eCurrentState == E_PlayerState::Event)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
 	else
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::MoveKusshon), false, static_cast<int>(E_PlayerAnim::Run));
 	}
 }
 
@@ -394,8 +431,10 @@ void TaskPlayer::ChangeLane()
 void TaskPlayer::SetJump()
 {
 	m_eCurrentState = E_PlayerState::Jump;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false,
+	m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpReady), false,
 		static_cast<int>(E_PlayerAnim::JumpRise1) + TRIK_ANIM_INDEX(m_iTrikNum));
+	m_pShadowAnim->SetAnimation(static_cast<int>(E_ShadowAnim::Jump), true, NULL);
+	m_fJumpStartPosX = m_TaskTransform.GetPosition().x;
 	// トリックを決められていたら得点
 	if (m_iTrikNum != 0)
 	{
@@ -415,26 +454,57 @@ void TaskPlayer::Jump()
 	KVector3 vPos = m_TaskTransform.GetPosition();
 	m_TaskTransform.SetPosition(KVector3{vPos.x, vPos.z + fHeight, vPos.z});
 
+	// 影は地面に
+	m_pShadow->m_transform.SetPosition(KVector3{ 0, -fHeight, 0 });
+	static float fKobuHeight = 0;
+	float fDistance = m_TaskTransform.GetPosition().x - m_fJumpStartPosX;
+	if (fDistance < 70 || (550 <= fDistance && fDistance < 620))
+	{
+		// コブ上り坂
+		if (fKobuHeight < 100)
+		{
+			fKobuHeight += GetDeltaTime() * 200;
+		}
+		else
+		{
+			fKobuHeight = 100;
+		}
+		m_pShadow->m_transform.Translate(KVector3{ 0, fKobuHeight, 0 });
+	}
+	else
+	{
+		// コブ下り坂
+		if (0 < fKobuHeight)
+		{
+			fKobuHeight -= GetDeltaTime() * 200;
+			m_pShadow->m_transform.Translate(KVector3{ 0, fKobuHeight, 0 });
+		}
+		else
+		{
+			fKobuHeight = 0;
+		}
+	}
+
 	// アニメーション切り替え
 	static int iAnimCnt = 0;
-	if (fMaxHeight * 0.5f <= fHeight && iAnimCnt == 0)
+	if (fMaxHeight * 0.4f <= fHeight && iAnimCnt == 0)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpRise2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpRise2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fMaxHeight * 0.9f <= fHeight && iAnimCnt == 1)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpStay) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpStay) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fHeight <= fMaxHeight * 0.9f && iAnimCnt == 2)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent1) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent1) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 	else if (fHeight <= fMaxHeight * 0.5f && iAnimCnt == 3)
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpDescent2) + TRIK_ANIM_INDEX(m_iTrikNum), true, NULL);
 		iAnimCnt++;
 	}
 
@@ -442,10 +512,13 @@ void TaskPlayer::Jump()
 	if (vPos.y < vPos.z)
 	{
 		m_TaskTransform.SetPosition(KVector3{ vPos.x, vPos.z, vPos.z });
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), false, static_cast<int>(E_PlayerAnim::Run));
-		//m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), true, NULL);
+		m_pShadow->m_transform.SetPosition(SHADOW_INITIAL_POS);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), false, static_cast<int>(E_PlayerAnim::Run));
+		m_pShadowAnim->SetAnimation(static_cast<int>(E_ShadowAnim::Normal), true, NULL);
+		//m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::JumpEnd), true, NULL);
 		m_eCurrentState = E_PlayerState::Normal;
 		fTime = 0;
+		fKobuHeight = 0;
 		iAnimCnt = 0;
 	}
 }
@@ -465,14 +538,14 @@ void TaskPlayer::SetDamage()
 		m_canChangeLane = false; // レーン移動一時停止
 	}
 	m_fAutoRunSpeed = RUN_SPEED_DAMAGE;
-	m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Damage), false, static_cast<int>(E_PlayerAnim::Run));
+	m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Damage), false, static_cast<int>(E_PlayerAnim::Run));
 	m_eCurrentState = E_PlayerState::Damage;
 	m_pScoreController->AddPoint(E_Point::DamageRock); // 減点
 }
 
 void TaskPlayer::Damage()
 {
-	if (m_pAnim->IsFinishAnimation())
+	if (m_pPlayerAnim->IsFinishAnimation())
 	{
 		m_fAutoRunSpeed = RUN_SPEED_NORMAL;
 		m_eCurrentState = E_PlayerState::Normal;
@@ -498,7 +571,7 @@ void TaskPlayer::SetEvent()
 	}
 	else
 	{
-		m_pAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
+		m_pPlayerAnim->SetAnimation(static_cast<int>(E_PlayerAnim::Crouch), true, NULL);
 	}
 }
 
