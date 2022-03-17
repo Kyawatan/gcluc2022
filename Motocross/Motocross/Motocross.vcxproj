@@ -77,6 +77,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(DXSDK_DIR)include\;C:\Users\Owner\Documents\TortoiseSVN-work\tracpath_dx11\trunk\KawataLib\KawataLib\include;$(ProjectDir)\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(DXSDK_DIR)lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -107,10 +109,11 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>C:\Users\Owner\Documents\GitHub-work\gcluc2022\Motocross\Debuf\KawataLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -172,6 +175,7 @@
     <ClCompile Include="Main\WinMain.cpp" />
     <ClCompile Include="ResultScene\Codes\SceneResult.cpp" />
     <ClCompile Include="TitleScene\Codes\SceneTitle.cpp" />
+    <ClCompile Include="TitleScene\Codes\TaskMenuPointer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CameraController.h" />
@@ -193,6 +197,7 @@
     <ClInclude Include="include\TaskFlag.h" />
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
+    <ClInclude Include="include\TaskMenuPointer.h" />
     <ClInclude Include="include\TaskPlayer.h" />
     <ClInclude Include="include\TaskPlayerShadow.h" />
     <ClInclude Include="include\TaskRock.h" />

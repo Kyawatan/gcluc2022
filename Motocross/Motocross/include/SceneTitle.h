@@ -2,6 +2,7 @@
 #include "Definition.h"
 #include "CameraController.h"
 
+
 class SceneTitle : public SceneBase
 {
 public:
@@ -13,6 +14,7 @@ public:
 private:
 	CameraController	m_CameraController;
 	TaskBase* m_pWindowEffect;
+	TaskBase* m_pMenuPointer;
 
 	bool m_isOnce;
 	float m_fWaitTime;
