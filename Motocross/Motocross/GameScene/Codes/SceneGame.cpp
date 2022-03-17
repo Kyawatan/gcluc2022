@@ -39,7 +39,7 @@ void SceneGame::Update()
 		if (m_isOnce)
 		{
 			// 画面フェードイン
-			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn();
+			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(1);
 			m_isOnce = false;
 		}
 		// SPACEキー押下でプレイ中に

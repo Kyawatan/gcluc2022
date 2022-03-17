@@ -59,7 +59,7 @@ void QTEController::StartQTE()
 	int iTrikDifficulty = static_cast<int>(m_pGameDirector->GetQTEDifficulty());
 	SetKey(iTrikDifficulty + 2);
 	m_onQTE = true;
-	m_pWindowEffect->Dark();
+	m_pWindowEffect->Dark(0.3f);
 }
 
 void QTEController::FinishQTE()
@@ -68,7 +68,7 @@ void QTEController::FinishQTE()
 	m_iInputKeyList.clear();
 	m_QTEUIManager.FinishRemainingInputKey();
 	m_onQTE = false;
-	m_pWindowEffect->FadeIn();
+	m_pWindowEffect->FadeIn(0.3f);
 }
 
 void QTEController::ProceedQTE()

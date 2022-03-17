@@ -12,15 +12,23 @@ public:
 	void Update() override;
 	void Draw() override;
 
-	void Dark();
-	void FadeIn();
-	void FadeOut();
+	void Dark(float fTime);
+	void FadeIn(float fTime);
+	void FadeOut(float fTime);
 
 private:
 	QuadBase*	m_pSprite;
 	float		m_fOpacity;
 	bool		m_isOnce;
 	bool		m_isFinish;
+
+	float m_fDarkTime;
+	float m_fFadeInTime;
+	float m_fFadeOutTime;
+
+	void Dark();
+	void FadeIn();
+	void FadeOut();
 
 	void (TaskWindowEffect::* m_pFunc)();				// 関数ポインタ
 	void SetFunc(void (TaskWindowEffect::* pFunc)());	// 実行する関数をセットする

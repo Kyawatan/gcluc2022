@@ -37,12 +37,19 @@ void SceneTitle::Update()
 		m_isOnce = false;
 	}
 
+	// シーン終了処理
+	if (0 < m_fWaitTime)
+	{
+		Finish();
+		return;
+	}
 	// SPACEキー押下でシーン終了
 	if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
 	{
 		m_fWaitTime = FINISH_WAIT_TIME;
+		dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.8f);
+		return;
 	}
-	if (0 < m_fWaitTime) Finish();
 
 	// メニュー操作
 	if (GetpKeyState()->Down(E_KEY_NAME::W))
@@ -57,15 +64,25 @@ void SceneTitle::Update()
 
 void SceneTitle::Finish()
 {
-	if (dynamic_cast<TaskMenuPointer*>(m_pMenuPointer)->GetCurrentPos() == E_Menu::Play)
+	m_fWaitTime -= GetDeltaTime();
+	if (m_fWaitTime <= 0)
 	{
-		m_fWaitTime -= GetDeltaTime();
-		if (m_fWaitTime <= 0)
+		switch (dynamic_cast<TaskMenuPointer*>(m_pMenuPointer)->GetCurrentPos())
 		{
+		case E_Menu::Play:
 			// シーン終了
 			SetIsFinish();
 			SetNextSceneNum(static_cast<int>(E_SceneName::Game));
 			DeleteAllTask();
+			break;
+
+		case E_Menu::Book:
+			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(0.8f);
+			break;
+
+		case E_Menu::Howto:
+			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(0.8f);
+			break;
 		}
 	}
 }

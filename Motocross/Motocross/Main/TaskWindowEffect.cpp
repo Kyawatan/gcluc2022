@@ -8,6 +8,9 @@ TaskWindowEffect::TaskWindowEffect(float fOpacity)
 	, m_fOpacity(fOpacity)
 	, m_isOnce(true)
 	, m_isFinish(true)
+	, m_fDarkTime(0)
+	, m_fFadeInTime(0)
+	, m_fFadeOutTime(0)
 	, m_pFunc(NULL)
 
 {
@@ -40,22 +43,26 @@ void TaskWindowEffect::Draw()
 	}
 }
 
-void TaskWindowEffect::Dark()
+void TaskWindowEffect::Dark(float fTime)
 {
 	/*****************************************************************************
 		開始
 	*****************************************************************************/
 	if (m_isOnce)
 	{
-		SetDrawNum(static_cast<int>(E_TaskDrawNum::UI) - 1);
+		m_fDarkTime = fTime;
+		SetDrawNum(static_cast<int>(E_TaskDrawNum::UI) - 1); // UIは手前に表示
 		this->SetFunc(&TaskWindowEffect::Dark);
 	}
+}
 
+void TaskWindowEffect::Dark()
+{
 	/*****************************************************************************
 		繰り返し
 	*****************************************************************************/
 	// 透明度を上げる
-	m_fOpacity += GetDeltaTime() * 3;
+	m_fOpacity += GetDeltaTime() / m_fDarkTime;
 	m_pSprite->SetOpacity(m_fOpacity);
 
 	/*****************************************************************************
@@ -70,24 +77,25 @@ void TaskWindowEffect::Dark()
 	}
 }
 
-void TaskWindowEffect::FadeIn()
+void TaskWindowEffect::FadeIn(float fTime)
 {
-	static float fSpeed = 0.5f;
 	/*****************************************************************************
 		開始
 	*****************************************************************************/
 	if (m_isOnce)
 	{
-		if (m_fOpacity == 0.5f) fSpeed = 3;
-		else fSpeed = 0.5f;
+		m_fFadeInTime = fTime;
 		this->SetFunc(&TaskWindowEffect::FadeIn);
 	}
+}
 
+void TaskWindowEffect::FadeIn()
+{
 	/*****************************************************************************
 		繰り返し
 	*****************************************************************************/
 	// 透明度を下げる
-	m_fOpacity -= GetDeltaTime() * fSpeed;
+	m_fOpacity -= GetDeltaTime() / m_fFadeInTime;
 	m_pSprite->SetOpacity(m_fOpacity);
 
 	/*****************************************************************************
@@ -101,22 +109,26 @@ void TaskWindowEffect::FadeIn()
 	}
 }
 
-void TaskWindowEffect::FadeOut()
+void TaskWindowEffect::FadeOut(float fTime)
 {
 	/*****************************************************************************
 		開始
 	*****************************************************************************/
 	if (m_isOnce)
 	{
+		m_fFadeOutTime = fTime;
 		m_pSprite->SetOpacity(m_fOpacity);
 		this->SetFunc(&TaskWindowEffect::FadeOut);
 	}
+}
 
+void TaskWindowEffect::FadeOut()
+{
 	/*****************************************************************************
 		繰り返し
 	*****************************************************************************/
 	// 透明度を上げる
-	m_fOpacity += GetDeltaTime() / 2;
+	m_fOpacity += GetDeltaTime() / m_fFadeOutTime;
 	m_pSprite->SetOpacity(m_fOpacity);
 
 	/*****************************************************************************
