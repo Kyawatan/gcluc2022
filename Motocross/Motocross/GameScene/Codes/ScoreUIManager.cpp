@@ -15,5 +15,5 @@ ScoreUIManager::~ScoreUIManager()
 
 void ScoreUIManager::SetAddPointEffect(int iBearTip)
 {
-	dynamic_cast<TaskBear*>(m_pBear)->SetRhythm(iBearTip);
+	dynamic_cast<TaskBear*>(m_pBear)->SetAppear(iBearTip);
 }

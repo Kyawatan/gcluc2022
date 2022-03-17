@@ -30,8 +30,8 @@ enum class E_TaskDrawNum
 	Default			= 500,
 	PlayerDefault	= -160,
 	Forward			= -500,
-	Bear			= -600,
 	UI				= -1000,
+	Bear			= -1100,
 };
 
 // É^ÉXÉNÇÃLayerî‘çÜ
