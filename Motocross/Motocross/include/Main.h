@@ -28,6 +28,7 @@ private:
 	void SetFunc(void (Main::* pFunc)()) { m_pFunc = pFunc; } // 実行する関数をセットする
 
 	E_SceneName m_nowScene;
-	SceneBase* m_pScene;
+	SceneBase*	m_pScene;
+	int			m_iTotalScore;
 };
 

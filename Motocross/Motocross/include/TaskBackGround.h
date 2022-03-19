@@ -15,6 +15,9 @@ public:
 	const float GetCourseLength();
 
 private:
-	QuadBase* m_pSprite;
+	QuadBase*	m_pSprite;
 	const float m_fCourseLength;
+	bool		m_onSlideIn;
+
+	void SlideIn();
 };

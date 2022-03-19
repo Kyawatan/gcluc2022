@@ -129,6 +129,10 @@ void TaskPlayer::Update()
 		FinishEvent(false);
 		SetJump();
 		break;
+	
+	case E_EventName::ScoringGate:
+		m_pScoreController->AddPoint(E_Point::PointGate);
+		break;
 	}
 }
 
@@ -334,9 +338,6 @@ bool TaskPlayer::CanAutoRun()
 void TaskPlayer::AutoRun()
 {
 	assert(PLAYER_START_POS_X <= m_TaskTransform.GetPosition().x && m_TaskTransform.GetPosition().x <= PLAYER_GOAL_POS_X);
-
-	//// ’âŽ~’†‚È‚çreturn
-	//if (m_fAutoRunSpeed == 0) return;
 
 	// ˆÚ“®
 	m_vMovement = KVector3{ m_fAutoRunSpeed * GetDeltaTime(), 0, 0 };

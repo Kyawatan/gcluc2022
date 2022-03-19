@@ -13,6 +13,7 @@ public:
 	~SceneGame();
 
 	void Update() override;
+	int GetTotalScore();
 
 private:
 	CameraController	m_CameraController;
@@ -28,4 +29,5 @@ private:
 	bool	m_isOnce;
 	float	m_fWaitTime;
 	int		m_iCountDown;
+	int		m_iAfterGoalCount;
 };

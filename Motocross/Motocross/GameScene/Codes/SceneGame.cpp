@@ -16,6 +16,7 @@ SceneGame::SceneGame()
 	, m_isOnce(true)
 	, m_fWaitTime(0)
 	, m_iCountDown(4)
+	, m_iAfterGoalCount(0)
 {
 	// コース生成
 	m_CourseGenerator.Init();
@@ -56,12 +57,15 @@ void SceneGame::Update()
 			m_iCountDown--;
 			if (0 < m_iCountDown)
 			{
+				// 3,2,1数字表示切り替え
 				dynamic_cast<TaskNumber*>(m_pNumber)->SetNumber(m_iCountDown, 0, 100);
 			}
 			else
 			{
+				// 0のタイミングでゲームスタート
 				dynamic_cast<TaskNumber*>(m_pNumber)->Disable();
 				m_GameDirector.m_eCurrentGameState = E_GameState::Playing;
+				m_isOnce = true;
 			}
 		}
 		break;
@@ -74,8 +78,31 @@ void SceneGame::Update()
 		break;
 
 	case E_GameState::AfterGoal:
-
-		break;
+		if (m_isOnce)
+		{
+			m_fWaitTime = 4.0f;
+			m_isOnce = false;
+		}
+		m_fWaitTime -= GetDeltaTime();
+		if (m_fWaitTime <= 0 && m_iAfterGoalCount == 0)
+		{
+			// 画面フェードアウト
+			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.5f);
+			m_fWaitTime = 1.0f;
+			m_iAfterGoalCount++;
+		}
+		if (m_fWaitTime <= 0 && m_iAfterGoalCount == 1)
+		{
+			// シーン終了、リザルト画面遷移
+			SetIsFinish();
+			SetNextSceneNum(static_cast<int>(E_SceneName::Result));
+			DeleteAllTask();
+		}
 	}
 
+}
+
+int SceneGame::GetTotalScore()
+{
+	return m_ScoreController.GetTotalScore();
 }

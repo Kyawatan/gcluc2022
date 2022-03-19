@@ -138,7 +138,7 @@ void GameDirector::Update()
 
 	case static_cast<int>(E_EventName::ScoringGate):
 		// ‰Á“_
-
+		m_eCurrentEventName = E_EventName::ScoringGate;
 		break;
 
 	default:
