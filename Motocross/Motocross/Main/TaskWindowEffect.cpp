@@ -3,7 +3,7 @@
 
 
 TaskWindowEffect::TaskWindowEffect(float fOpacity)
-	: TaskBase(0, static_cast<int>(E_TaskDrawNum::UI), NULL)
+	: TaskBase(0, static_cast<int>(E_TaskDrawNum::WindowEffect), NULL)
 	, m_pSprite(NULL)
 	, m_fOpacity(fOpacity)
 	, m_isOnce(true)

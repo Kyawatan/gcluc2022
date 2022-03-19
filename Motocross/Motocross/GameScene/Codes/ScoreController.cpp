@@ -1,13 +1,15 @@
 #include "ScoreController.h"
 #include "GameDirector.h"
-#include "TaskNumber.h"
-
-#define CARNING 168 // 文字間隔
 
 
 ScoreController::ScoreController()
 	: m_ScoreUIManager()
 	, m_iTotalScore(0)
+	, m_iHundred(0)
+	, m_iTen(0)
+	, m_fWaitTime(0)
+	, m_iCount(0)
+	, m_onTotalScore(false)
 {
 
 }
@@ -22,19 +24,19 @@ void ScoreController::AddPoint(E_Point ePoint)
 	int iBearTip = 0;
 	if (ePoint == E_Point::TrikBiginner)
 	{
-		iBearTip = static_cast<int>(E_BearTip::TrikBiginner);
+		iBearTip = static_cast<int>(E_BearPointTip::TrikBiginner);
 	}
 	else if (ePoint == E_Point::TrikIntermediate)
 	{
-		iBearTip = static_cast<int>(E_BearTip::TrikIntermediate);
+		iBearTip = static_cast<int>(E_BearPointTip::TrikIntermediate);
 	}
 	else if (ePoint == E_Point::TrikAdvanced)
 	{
-		iBearTip = static_cast<int>(E_BearTip::TrikAdvanced);
+		iBearTip = static_cast<int>(E_BearPointTip::TrikAdvanced);
 	}
 	else if (ePoint == E_Point::DamageRock)
 	{
-		iBearTip = static_cast<int>(E_BearTip::DamageRock);
+		iBearTip = static_cast<int>(E_BearPointTip::DamageRock);
 	}
 	m_ScoreUIManager.SetAddPointEffect(iBearTip);
 	m_iTotalScore += static_cast<int>(ePoint);
@@ -46,7 +48,10 @@ void ScoreController::AddPoint(E_Point ePoint)
 
 void ScoreController::Update()
 {
-
+	if (m_onTotalScore)
+	{
+		SetTotalScore();
+	}
 }
 
 const int ScoreController::GetTotalScore()
@@ -56,21 +61,61 @@ const int ScoreController::GetTotalScore()
 
 void ScoreController::SetTotalScore(const int iTotalScore)
 {
-	// 一の位（必ず0）
-	TaskNumber* one = new TaskNumber();
-	one->SetNumber(0, 0, 0);
-	if (iTotalScore == 0) return;
-
-	// 百の位（0は表示しない）
-	int iHundred = iTotalScore / 100;
-	if (iHundred != 0)
+	m_iTotalScore = iTotalScore;
+	m_ScoreUIManager.SetScoreNumber(0); // 一の位表示(必ず0)
+	if (iTotalScore != 0)
 	{
-		TaskNumber* hundred = new TaskNumber();
-		hundred->SetNumber(iHundred, -CARNING * 2, 0);
+		m_iHundred = iTotalScore / 100; // 百の位
+		m_iTen = (iTotalScore - (m_iHundred * 100)) / 10; // 十の位
 	}
+	else
+	{
+		m_iCount = 2; // クマ表示へ
+	}
+	m_fWaitTime = 0.5f;
+	m_onTotalScore = true;
+}
 
-	// 十の位
-	int iTen = (iTotalScore - (iHundred * 100)) / 10;
-	TaskNumber* ten = new TaskNumber();
-	ten->SetNumber(iTen, -CARNING, 0);
+void ScoreController::SetTotalScore()
+{
+	m_fWaitTime -= GetDeltaTime();
+
+	if (m_fWaitTime <= 0)
+	{
+		switch (m_iCount)
+		{
+		case 0:
+			m_ScoreUIManager.SetScoreNumber(m_iTen); // 十の位表示
+			m_fWaitTime = 0.5f;
+			m_iCount++;
+			break;
+
+		case 1:
+			if (m_iHundred != 0)
+			{
+				m_ScoreUIManager.SetScoreNumber(m_iHundred); // 百の位表示
+			}
+			m_fWaitTime = 0.5f;
+			m_iCount++;
+			break;
+
+		case 2:
+			int iBearTip = static_cast<int>(E_BearRankTip::Gold);
+			if (m_iTotalScore < 150)
+			{
+				iBearTip = static_cast<int>(E_BearRankTip::Participation);
+			}
+			else if (m_iTotalScore < 250)
+			{
+				iBearTip = static_cast<int>(E_BearRankTip::Bronze);
+			}
+			else if (m_iTotalScore < 350)
+			{
+				iBearTip = static_cast<int>(E_BearRankTip::Silver);
+			}
+			m_ScoreUIManager.SetScoreEffect(iBearTip); // クマ表示
+			m_onTotalScore = false;
+			break;
+		}
+	}
 }

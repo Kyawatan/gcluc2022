@@ -25,6 +25,13 @@ public:
 private:
 	ScoreUIManager	m_ScoreUIManager;
 	int				m_iTotalScore;
+	int				m_iHundred;
+	int				m_iTen;
+	float			m_fWaitTime;
+	int				m_iCount;
+	bool			m_onTotalScore;
+
+	void SetTotalScore();
 
 	// friend class‚¾‚¯‚ªŒÄ‚Ño‚·
 	void Update();

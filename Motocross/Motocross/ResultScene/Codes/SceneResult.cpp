@@ -32,6 +32,7 @@ SceneResult::~SceneResult()
 
 void SceneResult::Update()
 {
+	m_ScoreController.Update();
 	m_fWaitTime -= GetDeltaTime();
 
 	if (m_fWaitTime <= 0)

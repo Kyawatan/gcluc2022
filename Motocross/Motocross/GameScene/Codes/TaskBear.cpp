@@ -4,30 +4,37 @@
 #include <math.h>
 #include "ScrapTexQuad.h"
 
-#define INITIAL_POS KVector3{ 460, -120, 0 }
+#define INITIAL_POS KVector3{ 460, -125, 0 }
 
-TaskBear::TaskBear()
+TaskBear::TaskBear(E_BearTex eTex)
 	: TaskBase(0, static_cast<int>(E_TaskDrawNum::Bear), NULL)
 	, m_pSprite(NULL)
 	, m_vPos(INITIAL_POS)
 	, m_iTipNum(0)
 	, m_fWaitTime(0)
 	, m_fAngle(0)
-	, m_onEnable(false)
+	, m_isInfinity(false)
 	, m_isOnce(true)
 	, m_isFinish(false)
 	, m_pFunc(NULL)
 {
 	// スプライト生成
 	m_pSprite = new ScrapTexQuad(&m_TaskTransform);
-	m_TaskTransform.SetRotation(KVector3{ 0, 0, (1.0 / 9.0) * M_PI });
 	// テクスチャをセット
 	TEXTURE_SCRAP_INFO texInfo;
 	texInfo.iTipWidth = 512;
 	texInfo.iTipHeight = 768;
 	texInfo.iTipRow = 2;
 	texInfo.iTipColumn = 2;
-	dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_point.png", &texInfo);
+	if (eTex == E_BearTex::Point)
+	{
+		dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_point.png", &texInfo);
+		m_TaskTransform.SetRotation(KVector3{ 0, 0, (1.0 / 9.0) * M_PI });
+	}
+	else if (eTex == E_BearTex::Rank)
+	{
+		dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_rank.png", &texInfo);
+	}
 }
 
 TaskBear::~TaskBear()
@@ -37,48 +44,37 @@ TaskBear::~TaskBear()
 
 void TaskBear::Update()
 {
-	if (m_onEnable)
-	{
-		// カメラ座標に合わせる
-		KVector3 vCameraPos = GetpCamera()->GetEyePt();
-		KVector3 vPos = KVec3Add(m_vPos, KVector3{ vCameraPos.x, vCameraPos.y, 0 });
-		m_TaskTransform.SetPosition(vPos);
-	}
+	// カメラ座標に合わせる
+	KVector3 vCameraPos = GetpCamera()->GetEyePt();
+	KVector3 vPos = KVec3Add(m_vPos, KVector3{ vCameraPos.x, vCameraPos.y, 0 });
+	m_TaskTransform.SetPosition(vPos);
 	// 現在のエフェクトを実行
 	if (m_pFunc != NULL) (this->*m_pFunc)();
 }
 
 void TaskBear::Draw()
 {
-	if (m_onEnable)
-	{
-		dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTipNum);
-	}
+	dynamic_cast<ScrapTexQuad*>(m_pSprite)->Draw(0, m_iTipNum);
 }
 
 /*****************************************************************************
 	得点
 *****************************************************************************/
-void TaskBear::SetAppear(int iTipNum)
+void TaskBear::SetAppear(int iTipNum, float fTime)
 {
 	/*****************************************************************************
 		開始
 	*****************************************************************************/
 	if (m_isOnce)
 	{
-		// 得点に合ったグラフィックを表示
-		const float fAddWaitTime = 2.0f;
-		const float fDeductWaitTime = 1.0f;
+		// グラフィックを表示
 		m_iTipNum = iTipNum;
-		if (m_iTipNum < 3)
+		m_fWaitTime = fTime;
+		if (fTime == 0)
 		{
-			m_fWaitTime = fAddWaitTime;
+			m_isInfinity = true; // ずっと表示
+			m_fWaitTime++;
 		}
-		else
-		{
-			m_fWaitTime = fDeductWaitTime;
-		}
-		m_onEnable = true;
 		m_isOnce = false;
 		this->SetFunc(&TaskBear::Appear);
 	}
@@ -89,31 +85,40 @@ void TaskBear::Appear()
 	/*****************************************************************************
 		繰り返し
 	*****************************************************************************/
-	if (m_iTipNum < 3)
+	// 上下移動
+	static const float fPeriod = 1.0f; // 周期1秒
+	static const int fRadius = 30; // 半径30px
+	m_fAngle += GetDeltaTime() / fPeriod;
+	float fSin = (float)sin((double)m_fAngle * 2 * M_PI);
+	float fMovement = fSin * GetDeltaTime() * fRadius;
+	m_vPos = KVec3Add(m_vPos, KVector3{ 0, fMovement, 0 });
+
+	if (!m_isInfinity)
 	{
-		// 上下移動
-		static const float fPeriod = 1.0f; // 周期1秒
-		static const int fRadius = 30; // 半径30px
-		m_fAngle += GetDeltaTime() / fPeriod;
-		float fSin = (float)sin((double)m_fAngle * 2 * M_PI);
-		float fMovement = fSin * GetDeltaTime() * fRadius;
-		m_vPos = KVec3Add(m_vPos, KVector3{ 0, fMovement, 0 });
+		m_fWaitTime -= GetDeltaTime();
 	}
-	m_fWaitTime -= GetDeltaTime();
 
 	/*****************************************************************************
 		終了
 	*****************************************************************************/
 	if (m_fWaitTime <= 0 || m_isFinish)
 	{
-		// 初期位置に戻して非表示
-		m_vPos = INITIAL_POS;
-		m_fWaitTime = 0;
-		m_fAngle = 0;
-		m_onEnable = false;
-		ExitFunc();
+		// タスク破棄
+		SetTaskStateDying();
+
+		//m_vPos = INITIAL_POS;
+		//m_fWaitTime = 0;
+		//m_fAngle = 0;
+		//m_onEnable = false;
+		//ExitFunc();
 	}
 }
+
+/*****************************************************************************
+	リザルト
+*****************************************************************************/
+
+
 
 /*****************************************************************************
 	その他
