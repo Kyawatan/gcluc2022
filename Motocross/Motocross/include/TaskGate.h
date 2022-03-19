@@ -9,11 +9,11 @@ enum class E_FrameName
 	Base,
 };
 
-class TaskStealFrame : public TaskBase
+class TaskGame : public TaskBase
 {
 public:
-	TaskStealFrame(KVector3 vPos, E_FrameName eFrameName);
-	~TaskStealFrame();
+	TaskGame(KVector3 vPos, E_FrameName eFrameName);
+	~TaskGame();
 
 	void Update() override;
 	void Draw() override;

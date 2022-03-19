@@ -167,7 +167,7 @@
     <ClCompile Include="GameScene\Codes\TaskPlayer.cpp" />
     <ClCompile Include="GameScene\Codes\TaskPlayerShadow.cpp" />
     <ClCompile Include="GameScene\Codes\TaskRock.cpp" />
-    <ClCompile Include="GameScene\Codes\TaskStealFrame.cpp" />
+    <ClCompile Include="GameScene\Codes\TaskGate.cpp" />
     <ClCompile Include="GameScene\Codes\TaskTrikNavi.cpp" />
     <ClCompile Include="Main\CameraController.cpp" />
     <ClCompile Include="Main\Main.cpp" />
@@ -203,7 +203,7 @@
     <ClInclude Include="include\TaskPlayer.h" />
     <ClInclude Include="include\TaskPlayerShadow.h" />
     <ClInclude Include="include\TaskRock.h" />
-    <ClInclude Include="include\TaskStealFrame.h" />
+    <ClInclude Include="include\TaskGate.h" />
     <ClInclude Include="include\TaskTrikNavi.h" />
     <ClInclude Include="include\TaskWindowEffect.h" />
   </ItemGroup>

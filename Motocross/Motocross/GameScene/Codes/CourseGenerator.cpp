@@ -5,7 +5,7 @@
 #include "LaneManager.h"
 #include "CollisionDetector.h"
 #include "TaskBackGround.h"
-#include "TaskStealFrame.h"
+#include "TaskGate.h"
 #include "TaskFlag.h"
 #include "TaskKobu.h"
 #include "TaskRock.h"
@@ -72,18 +72,18 @@ void CourseGenerator::SetStart()
 {
 	const float fStartPos = 250;
 
-	// スタート鉄骨生成
-	TaskBase* frameLeft = new TaskStealFrame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Left);
-	TaskBase* frameRight = new TaskStealFrame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Base);
+	// スタートゲート生成
+	TaskBase* gateLeft = new TaskGame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Left);
+	TaskBase* gateRight = new TaskGame(KVector3{ fStartPos, 0, 0 }, E_FrameName::Base);
 }
 
 void CourseGenerator::SetGoal()
 {
 	const float fGoalPos = m_fCourseLength - 1000;
 	
-	// ゴール鉄骨生成
-	TaskBase* frameLeft = new TaskStealFrame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Left);
-	TaskBase* frameRight = new TaskStealFrame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Goal);
+	// ゴールゲート生成
+	TaskBase* gateLeft = new TaskGame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Left);
+	TaskBase* gateRight = new TaskGame(KVector3{ fGoalPos, 0, 0 }, E_FrameName::Goal);
 
 	// ゴール位置を登録
 	KVector2 vStart = KVector2{ fGoalPos - m_fDepthCorrection, m_fLaneRightEndPos };
@@ -94,7 +94,7 @@ void CourseGenerator::SetGoal()
 	cs.vEnd = vEnd;
 	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	dynamic_cast<TaskStealFrame*>(frameRight)->DrawCollisionLine(vStart, vEnd);
+	//dynamic_cast<TaskGame*>(gateRight)->DrawCollisionLine(vStart, vEnd);
 }
 
 void CourseGenerator::SetJumpRamp(int iIndex, float fPosX)

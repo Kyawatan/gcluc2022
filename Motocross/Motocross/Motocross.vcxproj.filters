@@ -60,7 +60,7 @@
     <ClCompile Include="GameScene\Codes\TaskRock.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="GameScene\Codes\TaskStealFrame.cpp">
+    <ClCompile Include="GameScene\Codes\TaskGate.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="GameScene\Codes\GameDirector.cpp">
@@ -143,7 +143,7 @@
     <ClInclude Include="include\TaskRock.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="include\TaskStealFrame.h">
+    <ClInclude Include="include\TaskGate.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="include\GameDirector.h">
