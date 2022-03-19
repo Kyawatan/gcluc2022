@@ -6,7 +6,7 @@
 // コンストラクタ
 Main::Main()
 	: m_pFunc(&Main::Setup)
-	, m_nowScene(E_SceneName::Result)
+	, m_nowScene(E_SceneName::Title)
 	, m_pScene(NULL)
 	, m_iTotalScore(0)
 {

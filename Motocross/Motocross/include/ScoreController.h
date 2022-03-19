@@ -15,6 +15,7 @@ class ScoreController
 {
 public:
 	friend class SceneGame;
+	friend class SceneResult;
 
 	ScoreController();
 	~ScoreController();
@@ -25,7 +26,8 @@ private:
 	ScoreUIManager	m_ScoreUIManager;
 	int				m_iTotalScore;
 
-	// SceneGame‚¾‚¯‚ªŒÄ‚Ño‚·
+	// friend class‚¾‚¯‚ªŒÄ‚Ño‚·
 	void Update();
 	const int GetTotalScore();
+	void SetTotalScore(const int iTotalScore);
 };

@@ -7,11 +7,12 @@
 SceneResult::SceneResult(int iTotalScore)
 	: SceneBase()
 	, m_CameraController()
+	, m_ScoreController()
 	, m_pWindowEffect(NULL)
-	, m_fWaitTime(0)
+	, m_pNumber(NULL)
+	, m_fWaitTime(1.5f)
 	, m_iCount(0)
 	, m_iTotalScore(iTotalScore)
-	, m_isOnce(true)
 {
 	// ウィンドウエフェクト生成
 	m_pWindowEffect = new TaskWindowEffect(0);
@@ -31,26 +32,35 @@ SceneResult::~SceneResult()
 
 void SceneResult::Update()
 {
-	if (m_isOnce)
-	{
-		m_fWaitTime = 5.0f;
-		m_isOnce = false;
-	}
 	m_fWaitTime -= GetDeltaTime();
-	if (m_fWaitTime <= 0 && m_iCount == 0)
+
+	if (m_fWaitTime <= 0)
 	{
-		// SPACEキー押下でシーン終了
-		if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
+		switch (m_iCount)
 		{
-			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.8f);
-			m_fWaitTime = 1.5f;
+		case 0:
+			// スコア表示
+			m_ScoreController.SetTotalScore(m_iTotalScore);
+			m_fWaitTime = 2.0f;
 			m_iCount++;
+			break;
+
+		case 1:
+			// SPACEキー押下でフェードアウト
+			if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
+			{
+				dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.8f);
+				m_fWaitTime = 1.5f;
+				m_iCount++;
+			}
+			break;
+
+		case 2:
+			// シーン終了
+			SetIsFinish();
+			SetNextSceneNum(static_cast<int>(E_SceneName::Title));
+			DeleteAllTask();
+			break;
 		}
-	}
-	else if (m_fWaitTime <= 0 && m_iCount == 1)
-	{
-		SetIsFinish();
-		SetNextSceneNum(static_cast<int>(E_SceneName::Title));
-		DeleteAllTask();
 	}
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "Definition.h"
 #include "CameraController.h"
+#include "ScoreController.h"
 
 
 class SceneResult : public SceneBase
@@ -13,11 +14,11 @@ public:
 
 private:
 	CameraController	m_CameraController;
+	ScoreController		m_ScoreController;
 	TaskBase* m_pWindowEffect;
 	TaskBase* m_pNumber;
 
-	int		m_iTotalScore;
+	const int m_iTotalScore;
 	float	m_fWaitTime;
 	int		m_iCount;
-	bool	m_isOnce;
 };
