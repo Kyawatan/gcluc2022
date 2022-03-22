@@ -13,7 +13,8 @@
 
 #define JUMP_RAMP_PERIOD	4000	// ジャンプ台の間隔
 #define KOBU_INTERVAL		550		// ジャンプ始めとジャンプ終わりのコブの間隔
-#define ROCK_PERIOD			300		// 岩の間隔
+#define GATE_PERIOD			600		// 加点ゲートの間隔
+#define ROCK_PERIOD			600		// 岩の間隔
 
 
 CourseGenerator::CourseGenerator(GameDirector* pGameDirector)
@@ -52,14 +53,17 @@ void CourseGenerator::Init()
 	const int iInterval = 4000;
 	for (int i = 0; i < 3; i++)
 	{
+		// 加点ゲート生成
+		for (int j = iStartPos + 300; j <= iLastPos; j += GATE_PERIOD)
+		{
+			SetGate(j + (i * iInterval));
+		}
 		// 岩生成
 		for (int j = iStartPos; j <= iLastPos; j += ROCK_PERIOD)
 		{
-			SetRock(j + ( i * iInterval));
+			SetRock(j + (i * iInterval));
 		}
 	}
-	// 小加点ポイント生成
-	//SetGate(800);
 }
 
 void CourseGenerator::SetBackGround()
@@ -162,11 +166,14 @@ void CourseGenerator::SetJumpRamp(int iIndex, float fPosX)
 
 void CourseGenerator::SetGate(float fPosX)
 {
-	float fLanePos = m_pLaneManager->GetLanePos(E_CourseLane::Center);
+	// レーンを決定
+	std::random_device rd;
+	std::default_random_engine eng(rd());
+	std::uniform_int_distribution<int> distr1(0, 2);
+	float fLanePos = m_pLaneManager->GetLanePos(static_cast<E_CourseLane>((int)distr1(eng)));
 
 	// 左右フラグ生成
 	const float fLaneEdgeOffset = 50; // レーン中央から端にずらす量
-
 	float fLeftPosYZ = fLanePos + fLaneEdgeOffset;
 	float fRightPosYZ = fLanePos - fLaneEdgeOffset;
 	TaskBase* flagLeft = new TaskFlag(KVector3{ fPosX + (m_fDepthCorrection * 0.35f), fLeftPosYZ, fLeftPosYZ });
@@ -179,9 +186,9 @@ void CourseGenerator::SetGate(float fPosX)
 	cs.eName = E_EventName::ScoringGate;
 	cs.vStart = vStart;
 	cs.vEnd = vEnd;
-	//m_pCollisionDetector->SetCollision(cs);
+	m_pCollisionDetector->SetCollision(cs);
 	// デバッグ用補助線表示
-	dynamic_cast<TaskFlag*>(flagRight)->DrawCollisionLine(vStart, vEnd);
+	//dynamic_cast<TaskFlag*>(flagRight)->DrawCollisionLine(vStart, vEnd);
 }
 
 void CourseGenerator::SetRock(float fPosX)
@@ -189,11 +196,13 @@ void CourseGenerator::SetRock(float fPosX)
 	// 乱数生成
 	std::random_device rd;
 	std::default_random_engine eng(rd());
-	std::uniform_int_distribution<int> distr(0, 2);
+	//std::uniform_int_distribution<int> distr(0, 2);
+	std::uniform_int_distribution<int> distr(1, 2);
 	int fRandNum = (int)distr(eng);	// 同じX座標の岩の個数
 	int fRandLane = (int)distr(eng); // 1個目の岩のレーン
 
 	// 同じX座標に0～2個生成
+	// 同じX座標に1～2個生成
 	for (int i = 0; i < fRandNum; i++)
 	{
 		// 2個目の岩は1個目の岩のレーンと重ならないようにレーンを1つずらして（1 2 -）（- 1 2）（2 - 1）の3パターンができる

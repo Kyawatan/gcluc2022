@@ -176,6 +176,7 @@
     <ClCompile Include="Main\WinMain.cpp" />
     <ClCompile Include="ResultScene\Codes\SceneResult.cpp" />
     <ClCompile Include="TitleScene\Codes\SceneTitle.cpp" />
+    <ClCompile Include="TitleScene\Codes\TaskMenu.cpp" />
     <ClCompile Include="TitleScene\Codes\TaskMenuPointer.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +199,7 @@
     <ClInclude Include="include\TaskFlag.h" />
     <ClInclude Include="include\TaskKey.h" />
     <ClInclude Include="include\TaskKobu.h" />
+    <ClInclude Include="include\TaskMenu.h" />
     <ClInclude Include="include\TaskMenuPointer.h" />
     <ClInclude Include="include\TaskNumber.h" />
     <ClInclude Include="include\TaskPlayer.h" />

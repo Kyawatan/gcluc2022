@@ -29,7 +29,7 @@ int CollisionDetector::CollisionDetection(KVector2 vPoint)
 		KVector2 v2 = KVec2Sub(vPoint, (*itr).vStart);
 		int iDot = KVec2Dot(v1, v2);
 		int iMag = KVec2Mag(v1) * KVec2Mag(v2);
-		if (iDot == iMag)
+		if (iDot == iMag && KVec2Mag(v2) <= KVec2Mag(v1))
 		{
 			// Õ“Ë‚µ‚Ä‚¢‚é
 			E_EventName eName = (*itr).eName;

@@ -33,6 +33,7 @@ enum class E_TaskDrawNum
 	UI				= -1000,
 	Bear			= -1100,
 	WindowEffect	= -1200,
+	Menu			= -1300,
 };
 
 // É^ÉXÉNÇÃLayerî‘çÜ

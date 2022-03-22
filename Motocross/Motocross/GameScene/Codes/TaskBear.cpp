@@ -24,15 +24,16 @@ TaskBear::TaskBear(E_BearTex eTex)
 	TEXTURE_SCRAP_INFO texInfo;
 	texInfo.iTipWidth = 512;
 	texInfo.iTipHeight = 768;
-	texInfo.iTipRow = 2;
+	texInfo.iTipRow = 3;
 	texInfo.iTipColumn = 2;
 	if (eTex == E_BearTex::Point)
 	{
-		dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_point.png", &texInfo);
+		dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 2304, L"Resources/img/bear_point.png", &texInfo);
 		m_TaskTransform.SetRotation(KVector3{ 0, 0, (1.0 / 9.0) * M_PI });
 	}
 	else if (eTex == E_BearTex::Rank)
 	{
+		texInfo.iTipRow = 2;
 		dynamic_cast<ScrapTexQuad*>(m_pSprite)->SetTexture(1024, 1536, L"Resources/img/bear_rank.png", &texInfo);
 	}
 }

@@ -6,14 +6,15 @@
 
 
 ScoreUIManager::ScoreUIManager()
-	: m_iCount(0)
+	: m_pBear(NULL)
+	, m_iCount(0)
 {
 
 }
 
 ScoreUIManager::~ScoreUIManager()
 {
-
+	delete m_pBear;
 }
 
 void ScoreUIManager::SetAddPointEffect(int iBearTip)
@@ -25,6 +26,7 @@ void ScoreUIManager::SetAddPointEffect(int iBearTip)
 	switch (iBearTip)
 	{
 	case static_cast<int>(E_BearPointTip::DamageRock):
+		fEnableTime = 1.0f;
 	case static_cast<int>(E_BearPointTip::PointGate):
 		fEnableTime = 1.0f;
 		break;
@@ -39,8 +41,8 @@ void ScoreUIManager::SetAddPointEffect(int iBearTip)
 void  ScoreUIManager::SetScoreEffect(int iBearTip)
 {
 	// ランククマグラフィック表示
-	TaskBear* bear = new TaskBear(E_BearTex::Rank);
-	bear->SetAppear(iBearTip, 0);
+	m_pBear = new TaskBear(E_BearTex::Rank);
+	dynamic_cast<TaskBear*>(m_pBear)->SetAppear(iBearTip, 0);
 }
 
 void ScoreUIManager::SetScoreNumber(int iNumber)

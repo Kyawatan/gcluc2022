@@ -3,6 +3,7 @@
 #include "TaskWindowEffect.h"
 #include "TaskBackGround.h"
 #include "TaskMenuPointer.h"
+#include "TaskMenu.h"
 
 #define FINISH_WAIT_TIME 1.0f
 
@@ -12,7 +13,7 @@ SceneTitle::SceneTitle()
 	, m_CameraController()
 	, m_pWindowEffect(NULL)
 	, m_pMenuPointer(NULL)
-	, m_isOnce(true)
+	, m_pMenu(NULL)
 	, m_fWaitTime(0)
 {
 	// ウィンドウエフェクト生成
@@ -32,22 +33,20 @@ SceneTitle::~SceneTitle()
 
 void SceneTitle::Update()
 {
-	if (m_isOnce)
-	{
-		m_isOnce = false;
-	}
-
 	// シーン終了処理
 	if (0 < m_fWaitTime)
 	{
 		Finish();
 		return;
 	}
+
+	if (m_pMenu != NULL && m_pMenu->IsAlive()) return;
+
 	// SPACEキー押下でシーン終了
 	if (GetpKeyState()->Down(E_KEY_NAME::SPACE))
 	{
 		m_fWaitTime = FINISH_WAIT_TIME;
-		dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.8f);
+ 		dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeOut(0.8f);
 		return;
 	}
 
@@ -81,7 +80,8 @@ void SceneTitle::Finish()
 			break;
 
 		case E_Menu::Howto:
-			dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(0.8f);
+			//dynamic_cast<TaskWindowEffect*>(m_pWindowEffect)->FadeIn(0.8f);
+			m_pMenu = new TaskMenu(dynamic_cast<TaskWindowEffect*>(m_pWindowEffect));
 			break;
 		}
 	}

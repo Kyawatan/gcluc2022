@@ -15,8 +15,8 @@ private:
 	CameraController	m_CameraController;
 	TaskBase* m_pWindowEffect;
 	TaskBase* m_pMenuPointer;
+	TaskBase* m_pMenu;
 
-	bool m_isOnce;
 	float m_fWaitTime;
 
 	void Finish();

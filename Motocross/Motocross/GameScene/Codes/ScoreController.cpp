@@ -38,6 +38,10 @@ void ScoreController::AddPoint(E_Point ePoint)
 	{
 		iBearTip = static_cast<int>(E_BearPointTip::DamageRock);
 	}
+	else if (ePoint == E_Point::PointGate)
+	{
+		iBearTip = static_cast<int>(E_BearPointTip::PointGate);
+	}
 	m_ScoreUIManager.SetAddPointEffect(iBearTip);
 	m_iTotalScore += static_cast<int>(ePoint);
 	if (m_iTotalScore < 0)

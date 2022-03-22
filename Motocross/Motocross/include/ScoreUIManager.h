@@ -29,5 +29,6 @@ public:
 	void SetScoreNumber(int iTotalScore);
 
 private:
+	TaskBase* m_pBear;
 	int	m_iCount;
 };
